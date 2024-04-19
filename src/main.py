@@ -1,16 +1,78 @@
+import logging
+import httpx
+import requests
 import uvicorn
 import uvloop
 from fastapi import FastAPI
+from starlette.requests import Request
+from telegram import Update
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+# async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#     await context.bot.send_message(chat_id=update.effective_chat.id, text="Какой-то текст")
+#
+#
+# if __name__ == '__main__':
+#     app = ApplicationBuilder().token('7126934059:AAF5QjfYEOKtolSuYYttRXBTnv0CLD5TMlI').build()
+#     start_handler = CommandHandler('start', start)
+#     app.add_handler(start_handler)
+#
+#     app.run_polling()
+
+# todo токен надо спрятать в pydantic setting модель
+TOKEN = "7126934059:AAF5QjfYEOKtolSuYYttRXBTnv0CLD5TMlI"
+
+# todo надо будет написать свой апи класс для работы с телегой
+BASE_URL = f"https://api.telegram.org/bot{TOKEN}"
+
+client = httpx.AsyncClient()
 
 app = FastAPI()
+# Создание клавиатуры
+keyboard = [
+    {
+        "text": "Кнопка 1",
+        "callback_data": "1"
+    },
+    {
+        "text": "Кнопка 2",
+        "callback_data": "2"
+    }
+]
+
+reply_markup = {
+    'inline_keyboard': keyboard
+}
 
 
-@app.get("/")
-async def read_root():
-    return {"Hello": "World"}
+@app.post(f"/webhook{TOKEN}")
+async def webhook(req: Request):
+    logging.info("Я зашел в вебхук")
+    data = await req.json()
+    try:
+        chat_id = data['message']['chat']['id']
+        logging.info(f'мой чат ид == {chat_id}')
+        text = data['message']['text']
 
+        # await client.get(f"{BASE_URL}/sendMessage?chat_id={chat_id}&text={text}")
+        # todo надо разобраться как крепить кнопки к сообщению через апи
+        await client.post(f"{BASE_URL}/sendMessage", json={
+            "chat_id": chat_id,
+            "text": text,
+            "reply_markup": reply_markup
+        })
+    except Exception as e:
+        logging.error(e)
 
+    return data
+
+# tg id 281626882
 if __name__ == '__main__':
+    # tuna_url = "https://zzvj7k-31-134-187-85.ru.tuna.am"
+    # todo запрос нужен чтобы заработал вебхук, его надо перенести в startup event
+    # requests.get(url=f"https://api.telegram.org/bot{TOKEN}/setWebhook?url={tuna_url}/webhook{TOKEN}")
     uvloop.install()
     uvicorn.run('main:app',
                 host='0.0.0.0',
