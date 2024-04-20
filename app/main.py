@@ -7,7 +7,9 @@ import uvloop
 from fastapi import FastAPI
 from starlette.requests import Request
 
-from app.handler_commands.command_start import get_start_message
+from app.constants import CommandName
+from app.handler_commands.command_help import HandlerCommandHelp
+from app.handler_commands.command_start import HandlerCommandStart
 from app.keyboards import InlineKeyboardsModel, InlineKeyboardButtonModel
 from app.models.telegram_response_models import CallbackQueryModel, MessageModel, TelegramResponse, EntitiesType
 
@@ -48,9 +50,6 @@ async def webhook(req: Request):
     logging.info(f"{data=}")
     response_model = TelegramResponse(**data)
     try:
-        # await client.get(f"{BASE_URL}/sendMessage?chat_id={chat_id}&text={text}")
-        # todo надо разобраться как крепить кнопки к сообщению через апи
-        # Prepare the data payload
         if response_model.callback_query:
             resp_data = {
                 'chat_id': response_model.callback_query.message.chat.user_id,
@@ -59,13 +58,21 @@ async def webhook(req: Request):
             await client.post(f"{BASE_URL}/sendMessage", data=resp_data)
             return
         if response_model.message.entities:
-            text = 'Неожиданный entity для меня'
             if response_model.message.entities[0].type == EntitiesType.BOT_COMMAND.value:
                 match response_model.message.text:
-                    case '/start':
-                        text = get_start_message()
+                    case CommandName.START:
+                        text = HandlerCommandStart.get_start_message()
+                    case CommandName.HELP:
+                        text = HandlerCommandHelp.get_help_message()
+                    case CommandName.ACTIVITY_COEF:
+                        text = f"Обработка команды {CommandName.ACTIVITY_COEF}"
+                    case CommandName.STATISTICS:
+                        text = f"Обработка команды {CommandName.STATISTICS}"
+                    case CommandName.EXPORT:
+                        text = f"Обработка команды {CommandName.EXPORT}"
                     case _:
-                        text = 'Пока не знаю кейс для этой команды'
+                        logging.info(f'Пользователь: {response_model.message.chat.user_id} '
+                                     f'пытался использовать команду: {response_model.message.text}')
             resp_data = {
                 'chat_id': response_model.message.chat.user_id,
                 'text': text
@@ -95,7 +102,7 @@ async def webhook(req: Request):
 
 # tg id 281626882
 if __name__ == '__main__':
-    tuna_url = "https://prohxf-31-134-187-85.ru.tuna.am"
+    tuna_url = "https://23jwez-31-134-187-85.ru.tuna.am"
     # todo запрос нужен чтобы заработал вебхук, его надо перенести в startup event
     resp = requests.get(url=f"https://api.telegram.org/bot{TOKEN}/setWebhook?url={tuna_url}/webhook{TOKEN}")
     logging.info(f"Ответ от метода установки хука для телеги: {resp.json()}")
