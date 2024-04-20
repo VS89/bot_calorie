@@ -6,22 +6,9 @@ import uvicorn
 import uvloop
 from fastapi import FastAPI
 from starlette.requests import Request
-from telegram import Update, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 # logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
-
-# async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-#     await context.bot.send_message(chat_id=update.effective_chat.id, text="Какой-то текст")
-#
-#
-# if __name__ == '__main__':
-#     app = ApplicationBuilder().token('7126934059:AAF5QjfYEOKtolSuYYttRXBTnv0CLD5TMlI').build()
-#     start_handler = CommandHandler('start', start)
-#     app.add_handler(start_handler)
-#
-#     app.run_polling()
 
 # todo токен надо спрятать в pydantic setting модель
 TOKEN = "7126934059:AAF5QjfYEOKtolSuYYttRXBTnv0CLD5TMlI"
@@ -82,9 +69,10 @@ async def webhook(req: Request):
 
 # tg id 281626882
 if __name__ == '__main__':
-    # tuna_url = "https://zzvj7k-31-134-187-85.ru.tuna.am"
+    tuna_url = "https://77kw5l-31-134-187-85.ru.tuna.am"
     # todo запрос нужен чтобы заработал вебхук, его надо перенести в startup event
-    # requests.get(url=f"https://api.telegram.org/bot{TOKEN}/setWebhook?url={tuna_url}/webhook{TOKEN}")
+    resp = requests.get(url=f"https://api.telegram.org/bot{TOKEN}/setWebhook?url={tuna_url}/webhook{TOKEN}")
+    logging.info(f"Ответ от метода установки хука для телеги: {resp.json()}")
     uvloop.install()
     uvicorn.run('main:app',
                 host='0.0.0.0',
