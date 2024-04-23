@@ -1,15 +1,19 @@
+from app.constants import TextBotMessage
+from app.external_api.telegram_api import TelegramApi
+from app.models.telegram.tg_request_models import SendMessageModel
 
 
 class HandlerCommandHelp:
 
-    @staticmethod
-    def get_help_message() -> str:
-        msg_by_row = [
-            'Данный бот поможет тебе контролировать потребление и расход калорий.',
-            'Каждый день тебе нужно вводить свой вес, а бот будет рассчитывать тебе норму кКал, '
-            'для похудения необходимо потреблять норму кКал минус 500.',
-            'Так же ты можешь вводить твои израсходованные кКал, которые потратил на активностях',
-            'Ты можешь в любой момент обновить свой коэффициент активности используя команду /activity_coef',
-            'Если хочешь посмотреть все команды бота, то используй команду /start',
-        ]
-        return '\n'.join(msg_by_row)
+    def __init__(self, tg_api_client: TelegramApi, chat_id: int):
+        self.__client: TelegramApi = tg_api_client
+        self.__chat_id = chat_id
+
+    async def send_help_message(self):
+        """
+        Отправка сообщения для команды /help
+        """
+        await self.__client.send_message(data=SendMessageModel(
+            chat_id=self.__chat_id,
+            text='\n'.join(TextBotMessage.HELP_MSG)
+        ))

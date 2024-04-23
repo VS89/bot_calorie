@@ -1,22 +1,19 @@
+from app.constants import TextBotMessage
+from app.external_api.telegram_api import TelegramApi
+from app.models.telegram.tg_request_models import SendMessageModel
 
 
 class HandlerCommandStart:
 
-    @staticmethod
-    def get_start_message() -> str:
-        msg_by_row = [
-            'Привет!',
-            '\nМы рады видеть тебя в нашем "Похудизируй".',
-            'Он создан, чтобы помочь тебе в твоем похудении.',
-            'Чтобы добавить свой ввес нужно отправить сообщение, например, "85.1 кг"',
-            'Чтобы добавить потребленные кКал - "+100 ккал"',
-            'Чтобы добавить потраченные кКал - "-100 ккал"',
-            'Если ты хочешь узнать подробности взаимодействия с нами, то используй команду /help',
-            '\nКоманды бота:',
-            '\n/help - показывает справку',
-            '/start - показывает приветственное сообщение',
-            '/activity_coef - добавление/обновления коэффициента активности от 1 до 5',
-            '/statistics - получить динамику веса, потребляемых и израсходованных калорий за 10/30 дней',
-            '/export - получить динамику веса, потребляемых и израсходованных калорий за все время в файле *.csv'
-        ]
-        return '\n'.join(msg_by_row)
+    def __init__(self, tg_api_client: TelegramApi, chat_id: int):
+        self.__client: TelegramApi = tg_api_client
+        self.__chat_id = chat_id
+
+    async def send_start_message(self):
+        """
+        Отправка сообщения для команды /start
+        """
+        await self.__client.send_message(data=SendMessageModel(
+            chat_id=self.__chat_id,
+            text='\n'.join(TextBotMessage.START_MSG)
+        ))
