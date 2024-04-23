@@ -1,5 +1,6 @@
 from app.constants import TextBotMessage
 from app.external_api.telegram_api import TelegramApi
+from app.models.telegram.tg_request_models import SendMessageModel
 
 
 class HandlerCommandStart:
@@ -12,7 +13,7 @@ class HandlerCommandStart:
         """
         Отправка сообщения для команды /start
         """
-        await self.__client.send_message(data={
-            'chat_id': self.__chat_id,
-            'text': '\n'.join(TextBotMessage.START_MSG)
-        })
+        await self.__client.send_message(data=SendMessageModel(
+            chat_id=self.__chat_id,
+            text='\n'.join(TextBotMessage.START_MSG)
+        ))

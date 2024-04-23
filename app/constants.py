@@ -9,6 +9,14 @@ class CommandName:
     EXPORT = '/export'
 
 
+class PrefixCallbackData:
+    """
+    Префиксы для callback data в inline кнопках
+    """
+
+    ACTIVITY_COEF = 'acoef'
+
+
 class TextBotMessage:
 
     ACTIVITY_COEF_START_MSG = [
