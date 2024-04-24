@@ -8,10 +8,10 @@ from starlette.requests import Request
 
 from app.constants import CommandName, PrefixCallbackData
 from app.external_api.telegram_api import TelegramApi
-from app.handler_commands.command_activity_coef import HandlerCommandActivityCoef
-from app.handler_commands.command_help import HandlerCommandHelp
-from app.handler_commands.command_start import HandlerCommandStart
-from app.models.telegram.tg_request_models import GetHistoryModel, GetUpdatesModel, SendMessageModel
+from app.handler.commands import HandlerCommandActivityCoef
+from app.handler.commands import HandlerCommandHelp
+from app.handler.commands.command_start import HandlerCommandStart
+from app.models.telegram.tg_request_models import SendMessageModel
 from app.models.telegram.tg_response_models import  TelegramResponse, EntitiesType
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -77,7 +77,7 @@ async def webhook(req: Request):
 
 # tg id 281626882
 if __name__ == '__main__':
-    tuna_url = "https://yu6fm9-31-134-187-85.ru.tuna.am"
+    tuna_url = "https://mx8jq9-31-134-187-85.ru.tuna.am"
     # todo запрос нужен чтобы заработал вебхук, его надо перенести в startup event
     resp = requests.get(url=f"https://api.telegram.org/bot{TOKEN}/setWebhook?url={tuna_url}/webhook{TOKEN}")
     logging.info(f"Ответ от метода установки хука для телеги: {resp.json()}")

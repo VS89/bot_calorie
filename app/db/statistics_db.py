@@ -1,4 +1,4 @@
-import psycopg2
+import aiopg
 
 
 class StatisticsDB:
@@ -8,21 +8,36 @@ class StatisticsDB:
 
     def __init__(self):
         # todo эти данные спрятать потом
-        self.__connect = psycopg2.connect(dbname='test_db', user='valentins', password='$yUi6g5uJoPbeN*GgEZr',
-                                          host='127.0.0.1')
-        self.__cursor = self.__connect.cursor()
+        self.__dsn = f'dbname=test_db user=valentins password=$yUi6g5uJoPbeN*GgEZr host=127.0.0.1'
 
-    def __del__(self):
-        self.__cursor.close()
-        self.__connect.close()
+    async def __execute(self, query: str):
+        """
 
-    def get_all_data_from_statistics(self):
-        self.__cursor.execute("SELECT * FROM statistics")
-        res = self.__cursor.fetchall()
-        for row in res:
-            print(row)
+        :param query:
+        :return:
+        """
+        pool = await aiopg.create_pool(self.__dsn)
+        async with pool.acquire() as connect:
+            async with connect.cursor() as cursor:
+                await cursor.execute(query)
+                result = await cursor.fetchall()
+        pool.close()
+        await pool.wait_closed()
+        return result
+
+    async def get_all_statistics(self):
+        """
+        Тестовая функция, все ок работает
+        :return:
+        """
+        res = await self.__execute(query="select * from statistics")
+        print(res)
 
 
-# if __name__ == '__main__':
+# async def main():
 #     s = StatisticsDB()
-#     s.get_all_data_from_statistics()
+#     await s.test_decorate()
+#
+#
+# if __name__ == '__main__':
+#     asyncio.run(main())

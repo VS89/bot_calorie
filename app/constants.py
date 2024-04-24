@@ -9,6 +9,11 @@ class CommandName:
     EXPORT = '/export'
 
 
+class LimitValues:
+
+    MIN_VALUE_KG = 40
+    MAX_VALUE_KG = 250
+
 class PrefixCallbackData:
     """
     Префиксы для callback data в inline кнопках
