@@ -30,3 +30,23 @@ class TestParseKg:
         value = parse_text.parse_text(text)
         assert value == exp_value, (f"Ошибка, ожидали что для текста '{text}' распарсится значение == {exp_value}, "
                                     f"получили {value}")
+
+    @pytest.mark.parametrize('text, exp_value', [
+        ('-1кк', -1),
+        ('+1ккал', 1),
+        ('1 kc', 1),
+        ('1  kcal', 1),
+        ('1111 кк', 1111),
+        ('1111  ккал', 1111),
+        ('- 1111kc', -1111),
+        ('+  1111kcal', 1111)
+    ])
+    def test_parse_kcal(self, text, exp_value):
+        """
+
+        """
+        parse_text = ParseText()
+        value = parse_text.parse_kcal(text)
+        assert value == exp_value, (f"Ошибка, ожидали что для текста '{text}' распарсится значение == {exp_value}, "
+                                    f"получили {value}")
+
