@@ -8,8 +8,8 @@ from starlette.requests import Request
 
 from app.constants import CommandName, PrefixCallbackData
 from app.external_api.telegram_api import TelegramApi
-from app.handler.commands import HandlerCommandActivityCoef
-from app.handler.commands import HandlerCommandHelp
+from app.handler.commands.command_activity_coef import HandlerCommandActivityCoef
+from app.handler.commands.command_help import HandlerCommandHelp
 from app.handler.commands.command_start import HandlerCommandStart
 from app.models.telegram.tg_request_models import SendMessageModel
 from app.models.telegram.tg_response_models import  TelegramResponse, EntitiesType

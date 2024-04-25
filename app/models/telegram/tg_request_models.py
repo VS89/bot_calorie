@@ -40,7 +40,8 @@ class GetUpdatesModel(BaseModel):
 
     model_config = ConfigDict(use_enum_values=True, validate_default=True)
 
-    offset: int = Field(0)
+    chat_id: int = Field(...)
+    # offset: int = Field(0)
     limit: int = Field(0)
-    timeout: int = Field(0)
-    allowed_updates: list[AllowedUpdate] = Field([AllowedUpdate.MESSAGE])
+    # timeout: int = Field(0)
+    # allowed_updates: list[AllowedUpdate] = Field([AllowedUpdate.MESSAGE])

@@ -22,7 +22,7 @@ class TelegramApi:
         """
         await self.__client.post(f"{self.__base_url}/getHistory", data=params.model_dump())
 
-    # todo тоже пока не работает
+    # todo тоже пока не работает вместе с вебхуком эта херь не работает
     async def get_updates(self, data: GetUpdatesModel):
         """
         Получаем данные из чата
