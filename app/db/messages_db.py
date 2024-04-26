@@ -1,6 +1,6 @@
-# import asyncio
+from aiopg import Cursor
 
-import aiopg
+from app.schemas.postgresql_schemas import MessagesSchemas
 
 
 class MessagesDB:
@@ -8,40 +8,28 @@ class MessagesDB:
     Класс для работы с базой данных postgresql и таблицей messages
     """
 
-    # todo перенести в базовый класс
-    def __init__(self):
-        # todo эти данные спрятать потом
-        self.__dsn = f'dbname=test_db user=valentins password=$yUi6g5uJoPbeN*GgEZr host=127.0.0.1'
+    def __init__(self, cursor: Cursor):
+        self._cursor = cursor
 
-    # todo перенести отсюда и из statistics_db в базовый класс
-    async def __execute(self, query: str):
-        """
-
-        :param query:
-        :return:
-        """
-        pool = await aiopg.create_pool(self.__dsn)
-        async with pool.acquire() as connect:
-            async with connect.cursor() as cursor:
-                await cursor.execute(query)
-                result = await cursor.fetchall()
-        pool.close()
-        await pool.wait_closed()
-        return result
-
-    async def get_all_statistics(self):
+    async def get_all_messages(self):
         """
         Тестовая функция, все ок работает
         :return:
         """
-        res = await self.__execute(query="select * from messages")
-        print(res)
+        await self._cursor.execute("select * from messages;")
+        res = await self._cursor.fetchall()
 
+    async def insert_message(self, data: MessagesSchemas):
+        """
+        Сохраняем сообщение в таблицу
+        """
+        await self._cursor.execute(
+            "INSERT INTO messages(user_id, activity_coef_flag, confirmation_action_flag, statistics_flag, "
+            "text, message_id) VALUES (%s, %s, %s, %s, %s, %s);",
+            (data.user_id, data.activity_coef_flag, data.confirmation_action_flag, data.statistics_flag,
+             data.text, data.message_id))
 
-# async def main():
-#     s = MessagesDB()
-#     await s.get_all_statistics()
-#
-#
-# if __name__ == '__main__':
-#     asyncio.run(main())
+    async def get_last_message_by_user_id(self, user_id: int) -> MessagesSchemas | None:
+        await self._cursor.execute(f"SELECT * FROM messages WHERE user_id = {user_id} ORDER BY message_id DESC;")
+        result = await self._cursor.fetchone()
+        return MessagesSchemas(**result) if result else None

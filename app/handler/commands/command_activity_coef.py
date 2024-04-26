@@ -4,6 +4,7 @@ from app.constants import TextBotMessage, PrefixCallbackData
 from app.external_api.telegram_api import TelegramApi
 from app.keyboards import InlineKeyboardsModel, InlineKeyboardButtonModel
 from app.models.telegram.tg_request_models import SendMessageModel
+from app.models.telegram.tg_response_models import MessageModel
 
 
 class HandlerCommandActivityCoef:
@@ -11,11 +12,11 @@ class HandlerCommandActivityCoef:
     def __init__(self, tg_api_client: TelegramApi):
         self.__client: TelegramApi = tg_api_client
 
-    async def send_activity_coef_message(self, chat_id: int):
+    async def send_activity_coef_message(self, chat_id: int) -> MessageModel:
         """
         Отправка сообщения для команды /help
         """
-        await self.__client.send_message(data=SendMessageModel(
+        return await self.__client.send_message(data=SendMessageModel(
             chat_id=chat_id,
             text='\n'.join(TextBotMessage.ACTIVITY_COEF_START_MSG),
             reply_markup=InlineKeyboardsModel(rows=1).create_keyboard(buttons=[
