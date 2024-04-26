@@ -105,7 +105,7 @@ async def webhook(req: Request):
 # tg id 281626882
 # DELETE FROM statistics WHERE user_id = 281626882;
 if __name__ == '__main__':
-    tuna_url = "https://0omxmf-31-134-187-85.ru.tuna.am"
+    tuna_url = "https://0iyj34-31-134-187-85.ru.tuna.am"
     # todo запрос нужен чтобы заработал вебхук, его надо перенести в startup event
     resp = requests.get(url=f"https://api.telegram.org/bot{TOKEN}/setWebhook?url={tuna_url}/webhook{TOKEN}")
     logging.info(f"Ответ от метода установки хука для телеги: {resp.json()}")

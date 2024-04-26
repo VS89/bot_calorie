@@ -30,6 +30,7 @@ class MessagesDB:
              data.text, data.message_id))
 
     async def get_last_message_by_user_id(self, user_id: int) -> MessagesSchemas | None:
-        await self._cursor.execute(f"SELECT * FROM messages WHERE user_id = {user_id} ORDER BY message_id DESC;")
+        await self._cursor.execute(f"SELECT row_to_json(t) message FROM (SELECT * FROM messages "
+                                   f"WHERE user_id = {user_id} ORDER BY message_id DESC) t;")
         result = await self._cursor.fetchone()
-        return MessagesSchemas(**result) if result else None
+        return MessagesSchemas(**result[0]) if result else None
