@@ -18,12 +18,20 @@ class AllowedUpdate(Enum):
 
 class SendMessageModel(BaseModel):
     """
-    Модель для метода tg_api -> sendMessage
+    Модель для метода отправки сообщения tg_api -> sendMessage
     """
 
     chat_id: int = Field(...)
     text: str = Field(None)
     reply_markup: str = Field(None)
+
+
+class EditMessageModel(SendMessageModel):
+    """
+    Модель для метода редактирования сообщения tg_api -> editMessageText
+    """
+
+    message_id: int = Field(...)
 
 
 class GetHistoryModel(BaseModel):
@@ -45,3 +53,14 @@ class GetUpdatesModel(BaseModel):
     limit: int = Field(0)
     # timeout: int = Field(0)
     # allowed_updates: list[AllowedUpdate] = Field([AllowedUpdate.MESSAGE])
+
+
+class AnswerCallbackQueryModel(BaseModel):
+
+    callback_query_id: str = Field(...)
+    text: str | None = Field(None)
+    show_alert: bool = Field(False)
+    url: str | None = Field(None)
+    cache_time: int | None = Field(0)
+
+

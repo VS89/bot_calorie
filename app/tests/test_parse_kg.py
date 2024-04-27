@@ -4,7 +4,7 @@ from app.constants import LimitValues
 from app.utils.parse_text import ParseText
 
 
-class TestParseKg:
+class TestParseText:
 
     @pytest.mark.parametrize('text, exp_value', [
         ('Мой вес 72кг', 72.0),
@@ -26,8 +26,7 @@ class TestParseKg:
         Проверяем, что работает регулярное выражение: (\b\d{2,3}(?:[.,]\d)?)\s*(кг|kg), которое ищет и возвращает
         значения(float) в кг, если не находит, то None
         """
-        parse_text = ParseText()
-        value = parse_text.parse_text(text)
+        value = ParseText(text).parse_kg()
         assert value == exp_value, (f"Ошибка, ожидали что для текста '{text}' распарсится значение == {exp_value}, "
                                     f"получили {value}")
 
@@ -43,10 +42,10 @@ class TestParseKg:
     ])
     def test_parse_kcal(self, text, exp_value):
         """
-
+        Проверяем, что работает регулярное выражение: ^([-+])?\s*(\d{1,4})\s*(кк|ккал|kc|kcal),
+        которое ищет и возвращает значения(int) в ккал, если не находит, то None
         """
-        parse_text = ParseText()
-        value = parse_text.parse_kcal(text)
+        value = ParseText(text).parse_kcal()
         assert value == exp_value, (f"Ошибка, ожидали что для текста '{text}' распарсится значение == {exp_value}, "
                                     f"получили {value}")
 

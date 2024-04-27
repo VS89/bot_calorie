@@ -15,5 +15,5 @@ class HandlerCommandHelp:
         """
         await self.__client.send_message(data=SendMessageModel(
             chat_id=self.__chat_id,
-            text='\n'.join(TextBotMessage.HELP_MSG)
+            text=TextBotMessage.HELP_MSG
         ))

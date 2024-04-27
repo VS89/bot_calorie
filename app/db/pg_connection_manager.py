@@ -2,6 +2,7 @@ import aiopg
 
 from app.db.messages_db import MessagesDB
 from app.db.statistics_db import StatisticsDB
+from app.db.users_db import UsersDB
 
 
 class PGConnectionManager:
@@ -30,6 +31,7 @@ class PGConnectionManager:
             self._cursor = await self._connection.cursor()
             self._statistics_db = StatisticsDB(self._cursor)
             self._messages_db = MessagesDB(self._cursor)
+            self._users_db = UsersDB(self._cursor)
         return self._cursor
 
     async def close(self):
@@ -47,3 +49,7 @@ class PGConnectionManager:
     @property
     def messages_db(self) -> MessagesDB:
         return self._messages_db
+
+    @property
+    def users_db(self) -> UsersDB:
+        return self._users_db

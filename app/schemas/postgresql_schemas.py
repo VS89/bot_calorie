@@ -28,3 +28,14 @@ class StatisticsSchemas(BaseModel):
     spent_kcal: int | None = Field(None)
     used_kcal: int | None = Field(None)
     activity_coef: int | None = Field(None)
+
+
+class UsersSchemas(BaseModel):
+    """
+    Модель для таблицы users
+    """
+    user_id: int = Field(...)
+    date_update_data: datetime = Field(..., description='Дата, когда последний раз были обновлены данные')
+    weight: float | None = Field(None)
+    activity_coef: int | None = Field(None)
+    calorie_count: int | None = Field(None, description='Норма калорий в день')

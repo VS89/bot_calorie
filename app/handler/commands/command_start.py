@@ -5,19 +5,20 @@ from pytz import timezone
 from app.constants import TextBotMessage
 from app.db.messages_db import MessagesDB
 
-from app.db.statistics_db import StatisticsDB
+from app.db.users_db import UsersDB
 from app.external_api.telegram_api import TelegramApi
 from app.models.telegram.tg_request_models import SendMessageModel
-from app.schemas.postgresql_schemas import StatisticsSchemas, MessagesSchemas
+from app.schemas.postgresql_schemas import MessagesSchemas, UsersSchemas
 
 
 class HandlerCommandStart:
 
-    def __init__(self, tg_api_client: TelegramApi, chat_id: int, statistics_db: StatisticsDB, messages_db: MessagesDB):
+    def __init__(self, tg_api_client: TelegramApi, chat_id: int, messages_db: MessagesDB,
+                 users_db: UsersDB):
         self._client: TelegramApi = tg_api_client
         self._chat_id = chat_id
-        self._statistics_db = statistics_db
         self._messages_db = messages_db
+        self._users_db = users_db
 
     async def _send_start_message(self):
         """
@@ -25,7 +26,7 @@ class HandlerCommandStart:
         """
         await self._client.send_message(data=SendMessageModel(
             chat_id=self._chat_id,
-            text='\n'.join(TextBotMessage.START_MSG)
+            text=TextBotMessage.START_MSG
         ))
 
     async def _send_second_message_after_first_start(self):
@@ -36,11 +37,11 @@ class HandlerCommandStart:
             - Отправляем второе приветственное сообщение
             - Сохраняем в базу сообщение, которое только что отправили
         """
-        user = await self._statistics_db.get_user_by_id(self._chat_id)
+        user = await self._users_db.get_user_by_user_id(self._chat_id)
         if user is None:
-            await self._statistics_db.insert_row(data=StatisticsSchemas(
+            await self._users_db.insert_user(data=UsersSchemas(
                 user_id=self._chat_id,
-                date=datetime.datetime.now(tz=timezone('Europe/Moscow'))
+                date_update_data=datetime.datetime.now(tz=timezone('Europe/Moscow'))
             ))
             resp = await self._client.send_message(data=SendMessageModel(
                 chat_id=self._chat_id,

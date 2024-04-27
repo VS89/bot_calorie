@@ -16,7 +16,7 @@ from app.handler.commands.command_help import HandlerCommandHelp
 from app.handler.commands.command_start import HandlerCommandStart
 from app.handler.messages.handler_text import HandlerText
 from app.models.telegram.tg_request_models import SendMessageModel
-from app.models.telegram.tg_response_models import  TelegramResponse, EntitiesType
+from app.models.telegram.tg_response_models import TelegramResponse, EntitiesType
 
 
 @asynccontextmanager
@@ -59,13 +59,10 @@ async def webhook(req: Request):
         if response_model.callback_query:
             match response_model.callback_query.data.split('_'):
                 case PrefixCallbackData.ACTIVITY_COEF, *v:
-                    await handler_activity_coef.handler_callback_data(callback_data=response_model.callback_query.data)
-
-            resp_data = {
-                'chat_id': response_model.callback_query.message.chat.user_id,
-                'text': f"Я на кнопку с callback_data == {response_model.callback_query.data}"
-            }
-            await client.post(f"{BASE_URL}/sendMessage", data=resp_data)
+                    await handler_activity_coef.handler_callback_data(callback_query=response_model.callback_query,
+                                                                      users_db=req.app.pg.users_db)
+                case _:
+                    logging.error(f'Получили неизвестный и необработанный callback: {response_model.callback_query}')
             return
         if response_model.message.entities:
             if response_model.message.entities[0].type == EntitiesType.BOT_COMMAND.value:
@@ -73,7 +70,7 @@ async def webhook(req: Request):
                 match response_model.message.text:
                     case CommandName.START:
                         await HandlerCommandStart(tg_api_client=tg_api_client, chat_id=chat_id,
-                                                  statistics_db=req.app.pg.statistics_db,
+                                                  users_db=req.app.pg.users_db,
                                                   messages_db=req.app.pg.messages_db).handler_start_command()
                     case CommandName.HELP:
                         await HandlerCommandHelp(tg_api_client=tg_api_client, chat_id=chat_id).send_help_message()
@@ -94,8 +91,9 @@ async def webhook(req: Request):
             tg_api_client=tg_api_client,
             chat_id=response_model.message.chat.user_id,
             statistics_db=req.app.pg.statistics_db,
-            messages_db=req.app.pg.messages_db
-        ).handler_text(message_id=response_model.message.message_id)
+            messages_db=req.app.pg.messages_db,
+            users_db=req.app.pg.users_db
+        ).handler_text(text=response_model.message.text)
     except Exception as e:
         logging.error(e)
 
@@ -105,10 +103,10 @@ async def webhook(req: Request):
 # tg id 281626882
 # DELETE FROM statistics WHERE user_id = 281626882;
 if __name__ == '__main__':
-    tuna_url = "https://0iyj34-31-134-187-85.ru.tuna.am"
+    # tuna_url = "https://pohudiziryi-bot-tg.ru.tuna.am"
     # todo запрос нужен чтобы заработал вебхук, его надо перенести в startup event
-    resp = requests.get(url=f"https://api.telegram.org/bot{TOKEN}/setWebhook?url={tuna_url}/webhook{TOKEN}")
-    logging.info(f"Ответ от метода установки хука для телеги: {resp.json()}")
+    # resp = requests.get(url=f"https://api.telegram.org/bot{TOKEN}/setWebhook?url={tuna_url}/webhook{TOKEN}")
+    # logging.info(f"Ответ от метода установки хука для телеги: {resp.json()}")
     uvloop.install()
     uvicorn.run('main:app',
                 host='0.0.0.0',
