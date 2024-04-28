@@ -18,6 +18,7 @@ class TestParseText:
         ('Мой вес 99;1кг', None),
         ('Мой вес 111,1      кг', 111.1),
         ('Мой вес 123 asdqwe кг', None),
+        ('кг', None),
         (f'Мой вес {LimitValues.MAX_VALUE_KG}кг', LimitValues.MAX_VALUE_KG),
         (f'Мой вес {LimitValues.MIN_VALUE_KG}кг', LimitValues.MIN_VALUE_KG)
     ])

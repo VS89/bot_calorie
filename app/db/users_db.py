@@ -29,29 +29,10 @@ class UsersDB:
             "INSERT INTO public.users(user_id, weight, activity_coef, date_update_data) "
             "VALUES (%s, %s, %s, %s);", (data.user_id, data.weight, data.activity_coef, data.date_update_data))
 
-    async def update_weight(self, user_id: int, weight: float):
+    async def update_data(self, data: UsersSchemas):
         """
-        Обновление веса юзера
-        """
-        await self._cursor.execute(
-            f"UPDATE public.users SET weight={weight}, date_update_data = '{CurrentDate.get_now()}' "
-            f"WHERE user_id = {user_id};"
-        )
-
-    async def update_activity_coef(self, user_id: int, activity_coef: int):
-        """
-        Обновление коэффициента активности юзера
+        Обновление данных в таблице
         """
         await self._cursor.execute(
-            f"UPDATE public.users SET activity_coef={activity_coef}, date_update_data = '{CurrentDate.get_now()}' "
-            f"WHERE user_id = {user_id};"
-        )
-
-    async def update_calorie_count(self, user_id: int, calorie_count: int):
-        """
-        Обновление нормы калорий
-        """
-        await self._cursor.execute(
-            f"UPDATE public.users SET calorie_count={calorie_count}, date_update_data = '{CurrentDate.get_now()}' "
-            f"WHERE user_id = {user_id};"
+            f"UPDATE public.users SET {data.get_set_string_for_update_data} WHERE user_id = {data.user_id};"
         )

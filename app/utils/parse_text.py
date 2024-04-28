@@ -31,3 +31,12 @@ class ParseText:
                 return -int(match.group(2))
             else:
                 return int(match.group(2))
+
+    def parse_digit(self) -> int | None:
+        """
+        Парсим первую цифру в тексте
+        """
+        pattern = r'[1-5]'
+        match = re.search(pattern, self._text)
+        if match:
+           return int(match.group())

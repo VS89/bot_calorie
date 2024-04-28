@@ -1,7 +1,10 @@
+from typing import Any
+
+from app.keyboards import InlineKeyboardsModel, InlineKeyboardButtonModel
+from app.models.telegram.tg_request_models import SendMessageModel
 
 
 class CommandName:
-
     START = '/start'
     HELP = '/help'
     ACTIVITY_COEF = '/activity_coef'
@@ -10,7 +13,6 @@ class CommandName:
 
 
 class LimitValues:
-
     MIN_VALUE_KG = 40
     MAX_VALUE_KG = 250
 
@@ -24,7 +26,6 @@ class PrefixCallbackData:
 
 
 class TextBotMessage:
-
     ACTIVITY_COEF_FIRST_MSG_FOR_NEW_USER = '\n'.join([
         'И последний шаг перед стартом нашего пути это ввод коэффициента активности. '
         'Выбери его на клавиатуре под сообщением где:',
@@ -78,4 +79,55 @@ class TextBotMessage:
                                 'в одно и тоже время, например, утром перед завтраком). И помни, '
                                 'достижение большой цели начинается с маленького шага вперед, и ты его уже сделал!')
 
+    CONFIRM_CHANGE_ACTIVITY_COEF_MSG = 'Ты точно хочешь изменить свой коэффициент активности на {}?'
 
+    SUCCESS_CONFIRM_CHANGE_ACTIVITY_COEF_MSG = ('Твой новый коэффициент активности успешно сохранен.\n'
+                                                'И теперь твоя норма кКал составляет {}, '
+                                                'но не забудь про дефицит -500 кКал')
+
+    FAILED_CONFIRM_CHANGE_ACTIVITY_COEF_MSG = 'Хорошо, оставим все как было'
+
+    YES = 'Да'
+
+    NO = 'Нет'
+
+
+class MessageConstant:
+
+    def __init__(self, user_id: int, callback_data: Any = None, text: str | None = None):
+        self._user_id = user_id
+        self._callback_data = callback_data
+        self._text = text
+
+    @property
+    def confirm_activity_coef_msg(self) -> SendMessageModel:
+        return SendMessageModel(
+            chat_id=self._user_id,
+            text=TextBotMessage.CONFIRM_CHANGE_ACTIVITY_COEF_MSG.format(self._callback_data),
+            reply_markup=InlineKeyboardsModel(rows=1).create_keyboard(buttons=[
+                InlineKeyboardButtonModel(
+                    text=TextBotMessage.YES,
+                    callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_{TextBotMessage.YES}_{self._callback_data}'),
+                InlineKeyboardButtonModel(
+                    text=TextBotMessage.NO,
+                    callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_{TextBotMessage.NO}')
+            ])
+        )
+
+    @property
+    def select_activity_coef_msg(self) -> SendMessageModel:
+        return SendMessageModel(
+            chat_id=self._user_id,
+            text=self._text,
+            reply_markup=InlineKeyboardsModel(rows=1).create_keyboard(buttons=[
+                InlineKeyboardButtonModel(text='1', callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_1'),
+                InlineKeyboardButtonModel(text='2', callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_2'),
+                InlineKeyboardButtonModel(text='3', callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_3'),
+                InlineKeyboardButtonModel(text='4', callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_4'),
+                InlineKeyboardButtonModel(text='5', callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_5'),
+            ])
+        )
+
+    @property
+    def success_registration_msg(self) -> SendMessageModel:
+        return SendMessageModel(chat_id=self._user_id, text=TextBotMessage.SUCCESS_REGISTRATION_MSG)

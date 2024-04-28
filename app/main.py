@@ -60,7 +60,8 @@ async def webhook(req: Request):
             match response_model.callback_query.data.split('_'):
                 case PrefixCallbackData.ACTIVITY_COEF, *v:
                     await handler_activity_coef.handler_callback_data(callback_query=response_model.callback_query,
-                                                                      users_db=req.app.pg.users_db)
+                                                                      users_db=req.app.pg.users_db,
+                                                                      message_db=req.app.pg.messages_db)
                 case _:
                     logging.error(f'Получили неизвестный и необработанный callback: {response_model.callback_query}')
             return
@@ -75,7 +76,8 @@ async def webhook(req: Request):
                     case CommandName.HELP:
                         await HandlerCommandHelp(tg_api_client=tg_api_client, chat_id=chat_id).send_help_message()
                     case CommandName.ACTIVITY_COEF:
-                        coef_message = await handler_activity_coef.send_activity_coef_message(chat_id=chat_id)
+                        await handler_activity_coef.send_activity_coef_message(chat_id=chat_id,
+                                                                               message_db=req.app.pg.messages_db)
                     case CommandName.STATISTICS:
                         text = f"Обработка команды {CommandName.STATISTICS}"
                     case CommandName.EXPORT:
@@ -87,6 +89,7 @@ async def webhook(req: Request):
         # await tg_api_client.send_message(data=SendMessageModel(
         #     chat_id=response_model.message.chat.user_id,
         #     text=f'Я то получил что ты написал: {response_model.message.text} но что мне с этим делать'))
+        logging.info(f"В обработчик текста передаем текст == {response_model.message.text}")
         await HandlerText(
             tg_api_client=tg_api_client,
             chat_id=response_model.message.chat.user_id,
