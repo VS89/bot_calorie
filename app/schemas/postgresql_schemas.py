@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Annotated
 
 from pydantic import BaseModel, Field
+from pytz import timezone
 
 
 class MessagesSchemas(BaseModel):
@@ -12,7 +12,7 @@ class MessagesSchemas(BaseModel):
     user_id: int = Field(...)
     message_id: int = Field(...)
     text: str | None = Field(None)
-    activity_coef_flag: bool | None = Field(False)
+    activity_coef: int | None = Field(None)
     confirmation_action_flag: bool | None = Field(False)
     statistics_flag: bool | None = Field(False)
 
@@ -35,7 +35,18 @@ class UsersSchemas(BaseModel):
     Модель для таблицы users
     """
     user_id: int = Field(...)
-    date_update_data: datetime = Field(..., description='Дата, когда последний раз были обновлены данные')
+    date_update_data: datetime = Field(datetime.now(tz=timezone('Europe/Moscow')),
+                                       description='Дата, когда последний раз были обновлены данные')
     weight: float | None = Field(None)
     activity_coef: int | None = Field(None)
     calorie_count: int | None = Field(None, description='Норма калорий в день')
+
+    @property
+    def get_set_string_for_update_data(self) -> str:
+        result = []
+        for k, v in self.model_dump(exclude_none=True).items():
+            if k == 'date_update_data':
+                result.append(f"{k}='{v}'")
+            else:
+                result.append(f'{k}={v}')
+        return ', '.join(result)
