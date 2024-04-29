@@ -1,6 +1,6 @@
 import logging
 
-from app.constants import TextBotMessage, MessageConstant
+from app.constants import TextBotMessage, LimitValues
 from app.db.messages_db import MessagesDB
 from app.db.statistics_db import StatisticsDB
 from app.db.users_db import UsersDB
@@ -8,6 +8,7 @@ from app.external_api.telegram_api import TelegramApi
 from app.handler.commands.command_activity_coef import HandlerCommandActivityCoef
 from app.models.telegram.tg_request_models import SendMessageModel
 from app.schemas.postgresql_schemas import MessagesSchemas, UsersSchemas, StatisticsSchemas
+from app.utils.message_buidler import MessageBuilder
 from app.utils.parse_text import ParseText
 from app.utils.utils import CalorieCount
 
@@ -54,10 +55,10 @@ class HandlerText:
                     activity_coef=value,
                     calorie_count=calorie_count
                 ))
-                await self._client.send_message(data=MessageConstant(
+                await self._client.send_message(data=MessageBuilder(
                     user_id=user.user_id).success_registration_msg)
             else:
-                resp = await self._client.send_message(data=MessageConstant(
+                resp = await self._client.send_message(data=MessageBuilder(
                     user_id=self._chat_id, callback_data=value,
                     text=TextBotMessage.CONFIRM_CHANGE_ACTIVITY_COEF_MSG.format(value)
                 ).confirm_activity_coef_msg)
@@ -103,7 +104,7 @@ class HandlerText:
 
         else:
             logging.info(f"Ты написал {text}, после того как получил окно про подтверждение")
-            await self._client.send_message(data=MessageConstant(
+            await self._client.send_message(data=MessageBuilder(
                 user_id=self._chat_id, callback_data=last_message.activity_coef,
                 text=TextBotMessage.CONFIRM_CHANGE_ACTIVITY_COEF_MSG.format(last_message.activity_coef)
             ).confirm_activity_coef_msg)
@@ -118,8 +119,11 @@ class HandlerText:
                                                activity_coef=user.activity_coef,
                                                kcal=value_kc)
         await self._statistics_db.insert_row(data=statistics_schemas)
-        summa = await self._statistics_db.get_sum_kcal_for_current_date(user_id=user.user_id)
-        logging.info(f"Для пользователя {user.user_id} текущий баланс ккал == {summa}")
+        kcal_sum = await self._statistics_db.get_sum_kcal_for_current_date(user_id=user.user_id)
+        logging.info(f"Для пользователя {user.user_id} текущий баланс ккал == {kcal_sum}")
+        kcal_balance = user.calorie_count - kcal_sum - LimitValues.CALORIE_DEFICIT
+        send_msg_model = MessageBuilder(user_id=user.user_id).calorie_balance_message(kcal_balance)
+        await self._client.send_message(data=send_msg_model)
 
     async def handler_text(self, text: str):
         """
@@ -131,16 +135,16 @@ class HandlerText:
                 text=TextBotMessage.CAN_HANDLER_ONLY_TEXT
             ))
             return
-        last_message = await self._messages_db.get_last_message_by_user_id(user_id=self._chat_id)
-        logging.info(f'Последнее сообщение в чате пользователя {self._chat_id} было "{last_message.text}" '
-                     f'с message_id == {last_message.message_id}')
-        # todo подумать насчет этого класса, потому что иногда нам надо будет парсить text, а иногда last_message.text
         parse_text = ParseText(text)
         user = await self._users_db.get_user_by_user_id(user_id=self._chat_id)
         if value_kc := parse_text.parse_kcal():
             logging.info(f"Распарсили кол-во ккал == {value_kc}")
             await self._added_kc(value_kc=value_kc, user=user)
             return
+        last_message = await self._messages_db.get_last_message_by_user_id(user_id=self._chat_id)
+        logging.info(f'Последнее сообщение в чате пользователя {self._chat_id} было "{last_message.text}" '
+                     f'с message_id == {last_message.message_id}')
+        # todo подумать насчет этого класса, потому что иногда нам надо будет парсить text, а иногда last_message.text
         match last_message.text:
 
             case TextBotMessage.SECOND_START_MSG_FOR_NEW_USER:

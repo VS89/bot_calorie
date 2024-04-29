@@ -15,6 +15,11 @@ class CommandName:
 class LimitValues:
     MIN_VALUE_KG = 40
     MAX_VALUE_KG = 250
+    CALORIE_DEFICIT = 500
+    CALORIE_BALANCE_LIMIT_A = 550
+    CALORIE_BALANCE_LIMIT_B = 490
+    CALORIE_BALANCE_LIMIT_C = 100
+    CALORIE_BALANCE_LIMIT_D = -50
 
 
 class PrefixCallbackData:
@@ -93,43 +98,10 @@ class TextBotMessage:
 
     CAN_HANDLER_ONLY_TEXT = 'К сожалению я могу обрабатывать только текстовые сообщения'
 
+    KCAL_BALANCE_LESS_MINUS_50 = 'Кажется, сегодня ты облопался!'
+    KCAL_BALANCE_MORE_MINUS_50_LESS_100 = 'Сегодня ты не поправился!'
+    KCAL_BALANCE_MORE_100_LESS_490 = 'Сегодня ты немножко молодец!'
+    KCAL_BALANCE_MORE_490_LESS_550 = 'Отлично, ты молодец!'
+    KCAL_BALANCE_MORE_550 = 'Ооо, тебе сегодня можно ещё покушать на {} kcal'
 
-class MessageConstant:
 
-    def __init__(self, user_id: int, callback_data: Any = None, text: str | None = None):
-        self._user_id = user_id
-        self._callback_data = callback_data
-        self._text = text
-
-    @property
-    def confirm_activity_coef_msg(self) -> SendMessageModel:
-        return SendMessageModel(
-            chat_id=self._user_id,
-            text=TextBotMessage.CONFIRM_CHANGE_ACTIVITY_COEF_MSG.format(self._callback_data),
-            reply_markup=InlineKeyboardsModel(rows=1).create_keyboard(buttons=[
-                InlineKeyboardButtonModel(
-                    text=TextBotMessage.YES,
-                    callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_{TextBotMessage.YES}_{self._callback_data}'),
-                InlineKeyboardButtonModel(
-                    text=TextBotMessage.NO,
-                    callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_{TextBotMessage.NO}')
-            ])
-        )
-
-    @property
-    def select_activity_coef_msg(self) -> SendMessageModel:
-        return SendMessageModel(
-            chat_id=self._user_id,
-            text=self._text,
-            reply_markup=InlineKeyboardsModel(rows=1).create_keyboard(buttons=[
-                InlineKeyboardButtonModel(text='1', callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_1'),
-                InlineKeyboardButtonModel(text='2', callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_2'),
-                InlineKeyboardButtonModel(text='3', callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_3'),
-                InlineKeyboardButtonModel(text='4', callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_4'),
-                InlineKeyboardButtonModel(text='5', callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_5'),
-            ])
-        )
-
-    @property
-    def success_registration_msg(self) -> SendMessageModel:
-        return SendMessageModel(chat_id=self._user_id, text=TextBotMessage.SUCCESS_REGISTRATION_MSG)
