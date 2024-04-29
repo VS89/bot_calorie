@@ -1,12 +1,13 @@
 import logging
 
-from app.constants import TextBotMessage, MessageConstant
+from app.constants import TextBotMessage
 from app.db.messages_db import MessagesDB
 from app.db.users_db import UsersDB
 from app.external_api.telegram_api import TelegramApi
 from app.models.telegram.tg_request_models import SendMessageModel, AnswerCallbackQueryModel
 from app.models.telegram.tg_response_models import MessageModel, CallbackQueryModel
 from app.schemas.postgresql_schemas import UsersSchemas, MessagesSchemas
+from app.utils.message_buidler import MessageBuilder
 from app.utils.utils import CalorieCount
 
 
@@ -18,11 +19,11 @@ class HandlerCommandActivityCoef:
     async def send_activity_coef_message(self, chat_id: int, message_db: MessagesDB,
                                          is_new_user: bool = False) -> MessageModel:
         """
-        Отправка сообщения для команды /help
+        Отправка сообщения для команды /activity_coef
         """
         text = TextBotMessage.ACTIVITY_COEF_FIRST_MSG_FOR_NEW_USER if is_new_user else TextBotMessage.ACTIVITY_COEF_MSG
-        resp = await self._client.send_message(data=MessageConstant(user_id=chat_id,
-                                                                    text=text).select_activity_coef_msg)
+        resp = await self._client.send_message(data=MessageBuilder(user_id=chat_id,
+                                                                   text=text).select_activity_coef_msg)
         await message_db.insert_message(data=MessagesSchemas(
             user_id=chat_id,
             message_id=resp.message_id,
@@ -65,7 +66,7 @@ class HandlerCommandActivityCoef:
                 await message_db.delete_all_message_user(user_id=user.user_id)
             else:
                 # todo поменять это сообщение на отправку answer callback query, чтобы кнопка долго не горела
-                resp = await self._client.send_message(data=MessageConstant(
+                resp = await self._client.send_message(data=MessageBuilder(
                     user_id=user.user_id, callback_data=callback_data).confirm_activity_coef_msg)
 
                 await message_db.insert_message(data=MessagesSchemas(
@@ -83,3 +84,4 @@ class HandlerCommandActivityCoef:
         await self._client.answer_callback_query(data=AnswerCallbackQueryModel(
             callback_query_id=callback_query.callback_query_id
         ))
+

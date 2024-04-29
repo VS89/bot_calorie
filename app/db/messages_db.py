@@ -11,14 +11,6 @@ class MessagesDB:
     def __init__(self, cursor: Cursor):
         self._cursor = cursor
 
-    async def get_all_messages(self):
-        """
-        Тестовая функция, все ок работает
-        :return:
-        """
-        await self._cursor.execute("select * from messages;")
-        res = await self._cursor.fetchall()
-
     async def insert_message(self, data: MessagesSchemas):
         """
         Сохраняем сообщение в таблицу
