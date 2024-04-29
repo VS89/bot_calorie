@@ -41,11 +41,11 @@ class EntitiesModel(BaseModel):
     Модель для команд
     """
 
-    model_config = ConfigDict(validate_default=True, use_enum_values=True)
+    model_config = ConfigDict(validate_default=True, use_enum_values=True, extra='allow')
 
     offset: int = Field(...)
     length: int = Field(...)
-    type: EntitiesType = Field(...)
+    type: EntitiesType | str = Field(...)
 
 
 class MessageModel(BaseModel):

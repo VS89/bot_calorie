@@ -47,16 +47,15 @@ app = FastAPI(lifespan=lifespan)
 handler_activity_coef = HandlerCommandActivityCoef(tg_api_client=tg_api_client)
 
 
-
-
-
 @app.post(f"/webhook{TOKEN}")
 async def webhook(req: Request):
     data = await req.json()
     logging.info(f"{data=}")
-    response_model = TelegramResponse(**data)
     try:
+        response_model = TelegramResponse(**data)
         if response_model.callback_query:
+            # todo все таки думаю убрать кнопки после нажатия, чтобы не думать о багах, которые могут быть,
+            #  когда жмут кнопку хер знает когда
             match response_model.callback_query.data.split('_'):
                 case PrefixCallbackData.ACTIVITY_COEF, *v:
                     await handler_activity_coef.handler_callback_data(callback_query=response_model.callback_query,
@@ -86,9 +85,6 @@ async def webhook(req: Request):
                         logging.info(f'Пользователь: {response_model.message.chat.user_id} '
                                      f'пытался использовать команду: {response_model.message.text}')
             return
-        # await tg_api_client.send_message(data=SendMessageModel(
-        #     chat_id=response_model.message.chat.user_id,
-        #     text=f'Я то получил что ты написал: {response_model.message.text} но что мне с этим делать'))
         logging.info(f"В обработчик текста передаем текст == {response_model.message.text}")
         await HandlerText(
             tg_api_client=tg_api_client,
@@ -102,7 +98,7 @@ async def webhook(req: Request):
 
     return data
 
-
+# todo скрывать inline-кнопки, после того как было обработано их событие
 # tg id 281626882
 # DELETE FROM statistics WHERE user_id = 281626882;
 if __name__ == '__main__':

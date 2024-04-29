@@ -18,7 +18,7 @@ class HandlerCommandActivityCoef:
     async def send_activity_coef_message(self, chat_id: int, message_db: MessagesDB,
                                          is_new_user: bool = False) -> MessageModel:
         """
-        Отправка сообщения для команды /help
+        Отправка сообщения для команды /activity_coef
         """
         text = TextBotMessage.ACTIVITY_COEF_FIRST_MSG_FOR_NEW_USER if is_new_user else TextBotMessage.ACTIVITY_COEF_MSG
         resp = await self._client.send_message(data=MessageConstant(user_id=chat_id,
@@ -83,3 +83,4 @@ class HandlerCommandActivityCoef:
         await self._client.answer_callback_query(data=AnswerCallbackQueryModel(
             callback_query_id=callback_query.callback_query_id
         ))
+

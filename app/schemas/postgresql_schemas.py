@@ -23,10 +23,9 @@ class StatisticsSchemas(BaseModel):
     """
 
     user_id: int = Field(...)
-    date: datetime = Field(..., description='Дата с указанием тайм зоны')
+    save_date: datetime = Field(datetime.now(tz=timezone('Europe/Moscow')), description='Дата с указанием тайм зоны')
     weight: float | None = Field(None)
-    spent_kcal: int | None = Field(None)
-    used_kcal: int | None = Field(None)
+    kcal: int | None = Field(None)
     activity_coef: int | None = Field(None)
 
 

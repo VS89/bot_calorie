@@ -91,6 +91,8 @@ class TextBotMessage:
 
     NO = 'Нет'
 
+    CAN_HANDLER_ONLY_TEXT = 'К сожалению я могу обрабатывать только текстовые сообщения'
+
 
 class MessageConstant:
 
