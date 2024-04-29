@@ -11,7 +11,7 @@ class ParseText:
         """
         Парсим значение кг из текста
         """
-        pattern = r'(\b\d{2,3}(?:[.,]\d)?)\s*(кг|kg)'
+        pattern = r'(\b\d{2,3}(?:[.,]\d)?)\s*(кг|kg)$'
         match = re.search(pattern, self._text.lower())
         # todo надо добавить обработку исключения
         if match:
@@ -23,7 +23,7 @@ class ParseText:
         """
         Парсим значение ккал из текста
         """
-        pattern = r'^([-+])?\s*(\d{1,4})\s*(кк|ккал|kc|kcal)'
+        pattern = r'^([-+])?\s*(\d{1,4})\s*(кк|ккал|kc|kcal)$'
         match = re.search(pattern, self._text.lower())
         # todo надо добавить обработку исключения
         if match:

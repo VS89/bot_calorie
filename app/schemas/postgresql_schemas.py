@@ -1,7 +1,8 @@
 from datetime import datetime
 
 from pydantic import BaseModel, Field
-from pytz import timezone
+
+from app.utils.utils import CurrentDate
 
 
 class MessagesSchemas(BaseModel):
@@ -23,7 +24,7 @@ class StatisticsSchemas(BaseModel):
     """
 
     user_id: int = Field(...)
-    save_date: datetime = Field(datetime.now(tz=timezone('Europe/Moscow')), description='Дата с указанием тайм зоны')
+    save_date: datetime = Field(default_factory=CurrentDate.get_now, description='Дата с указанием тайм зоны')
     weight: float | None = Field(None)
     kcal: int | None = Field(None)
     activity_coef: int | None = Field(None)
@@ -33,8 +34,9 @@ class UsersSchemas(BaseModel):
     """
     Модель для таблицы users
     """
+
     user_id: int = Field(...)
-    date_update_data: datetime = Field(datetime.now(tz=timezone('Europe/Moscow')),
+    date_update_data: datetime = Field(default_factory=CurrentDate.get_now,
                                        description='Дата, когда последний раз были обновлены данные')
     weight: float | None = Field(None)
     activity_coef: int | None = Field(None)

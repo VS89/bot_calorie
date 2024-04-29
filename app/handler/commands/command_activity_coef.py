@@ -4,7 +4,7 @@ from app.constants import TextBotMessage
 from app.db.messages_db import MessagesDB
 from app.db.users_db import UsersDB
 from app.external_api.telegram_api import TelegramApi
-from app.models.telegram.tg_request_models import SendMessageModel, AnswerCallbackQueryModel
+from app.models.telegram.tg_request_models import SendMessageModel, AnswerCallbackQueryModel, EditMessageModel
 from app.models.telegram.tg_response_models import MessageModel, CallbackQueryModel
 from app.schemas.postgresql_schemas import UsersSchemas, MessagesSchemas
 from app.utils.message_buidler import MessageBuilder
@@ -59,6 +59,11 @@ class HandlerCommandActivityCoef:
                     activity_coef=int(callback_data),
                     calorie_count=calorie_count
                 ))
+                # await self._client.edit_message(data=EditMessageModel(
+                #     chat_id=user.user_id,
+                #     message_id=callback_query.message.message_id,
+                #     text=TextBotMessage.SUCCESS_CONFIRM_CHANGE_ACTIVITY_COEF_MSG.format(calorie_count)
+                # ))
                 await self._client.send_message(data=SendMessageModel(
                     chat_id=user.user_id,
                     text=TextBotMessage.SUCCESS_CONFIRM_CHANGE_ACTIVITY_COEF_MSG.format(calorie_count)
@@ -76,11 +81,22 @@ class HandlerCommandActivityCoef:
                     activity_coef=int(callback_data)
                 ))
         else:
+            # await self._client.edit_message(data=EditMessageModel(
+            #     chat_id=user.user_id,
+            #     message_id=callback_query.message.message_id,
+            #     text=TextBotMessage.FAILED_CONFIRM_CHANGE_ACTIVITY_COEF_MSG
+            # ))
             await self._client.send_message(data=SendMessageModel(
                 chat_id=user.user_id,
                 text=TextBotMessage.FAILED_CONFIRM_CHANGE_ACTIVITY_COEF_MSG
             ))
             await message_db.delete_all_message_user(user_id=user.user_id)
+        # todo надо такую же штуку с отпилом кнопок в сообщении замутить, когда мы на такие сообщения текстом отвечаем
+        await self._client.edit_message(data=EditMessageModel(
+            chat_id=user.user_id,
+            message_id=callback_query.message.message_id,
+            text=callback_query.message.text
+        ))
         await self._client.answer_callback_query(data=AnswerCallbackQueryModel(
             callback_query_id=callback_query.callback_query_id
         ))

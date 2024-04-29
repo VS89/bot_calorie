@@ -28,6 +28,7 @@ class PrefixCallbackData:
     """
 
     ACTIVITY_COEF = 'acoef'
+    KG = 'kg'
 
 
 class TextBotMessage:
@@ -103,5 +104,13 @@ class TextBotMessage:
     KCAL_BALANCE_MORE_100_LESS_490 = 'Сегодня ты немножко молодец!'
     KCAL_BALANCE_MORE_490_LESS_550 = 'Отлично, ты молодец!'
     KCAL_BALANCE_MORE_550 = 'Ооо, тебе сегодня можно ещё покушать на {} kcal'
+
+    SAVE_NEW_WEIGHT = ("Спасибо! Это мы запомнили ;)\n\n"
+                       "Твоя норма кКал изменилась и теперь она составляет {}, но не забудь, что для похудения "
+                       "нужно соблюдать дефицит -500 кКал.")
+
+    CONFIRM_RESAVE_NEW_WEIGHT = "Сегодня был добавлен вес {} кг. Заменить?"
+
+    SAVE_OLD_WEIGHT = "Оставили вес равный {} кг"
 
 

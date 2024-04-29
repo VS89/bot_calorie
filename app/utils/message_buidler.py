@@ -12,20 +12,25 @@ class MessageBuilder:
         self._callback_data = callback_data
         self._text = text
 
-    @property
-    def confirm_activity_coef_msg(self) -> SendMessageModel:
+    def _confirm_message(self, text_msg: str, prefix_callback_data: str) -> SendMessageModel:
         return SendMessageModel(
             chat_id=self._user_id,
-            text=TextBotMessage.CONFIRM_CHANGE_ACTIVITY_COEF_MSG.format(self._callback_data),
+            text=text_msg.format(self._callback_data),
             reply_markup=InlineKeyboardsModel(rows=1).create_keyboard(buttons=[
                 InlineKeyboardButtonModel(
                     text=TextBotMessage.YES,
-                    callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_{TextBotMessage.YES}_{self._callback_data}'),
+                    callback_data=f'{prefix_callback_data}_{TextBotMessage.YES}_{self._callback_data}'),
                 InlineKeyboardButtonModel(
                     text=TextBotMessage.NO,
-                    callback_data=f'{PrefixCallbackData.ACTIVITY_COEF}_{TextBotMessage.NO}')
+                    callback_data=f'{prefix_callback_data}_{TextBotMessage.NO}')
             ])
         )
+
+    @property
+    def confirm_activity_coef_msg(self) -> SendMessageModel:
+        return self._confirm_message(
+            text_msg=TextBotMessage.CONFIRM_CHANGE_ACTIVITY_COEF_MSG.format(self._callback_data),
+            prefix_callback_data=PrefixCallbackData.ACTIVITY_COEF)
 
     @property
     def select_activity_coef_msg(self) -> SendMessageModel:
@@ -44,6 +49,15 @@ class MessageBuilder:
     @property
     def success_registration_msg(self) -> SendMessageModel:
         return SendMessageModel(chat_id=self._user_id, text=TextBotMessage.SUCCESS_REGISTRATION_MSG)
+
+    @property
+    def save_new_weight(self) -> SendMessageModel:
+        return SendMessageModel(chat_id=self._user_id, text=TextBotMessage.SAVE_NEW_WEIGHT.format(self._text))
+
+    @property
+    def confirm_resave_new_weight(self) -> SendMessageModel:
+        return self._confirm_message(text_msg=self._text,
+                                     prefix_callback_data=PrefixCallbackData.KG)
 
     def calorie_balance_message(self, kcal_balance: int) -> SendMessageModel:
         if kcal_balance < LimitValues.CALORIE_BALANCE_LIMIT_D:
