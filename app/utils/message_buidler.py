@@ -15,7 +15,7 @@ class MessageBuilder:
     def _confirm_message(self, text_msg: str, prefix_callback_data: str) -> SendMessageModel:
         return SendMessageModel(
             chat_id=self._user_id,
-            text=text_msg.format(self._callback_data),
+            text=text_msg,
             reply_markup=InlineKeyboardsModel(rows=1).create_keyboard(buttons=[
                 InlineKeyboardButtonModel(
                     text=TextBotMessage.YES,

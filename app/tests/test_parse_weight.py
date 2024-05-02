@@ -19,6 +19,7 @@ class TestParseText:
         ('Мой вес 99;1кг', None),
         ('Мой вес 111,1      кг', 111.1),
         ('Мой вес 123 asdqwe кг', None),
+        ('Мой вес  00kg', None),
         ('кг', None),
         (f'Мой вес {LimitValues.MAX_VALUE_KG}кг', LimitValues.MAX_VALUE_KG),
         (f'Мой вес {LimitValues.MIN_VALUE_KG}кг', LimitValues.MIN_VALUE_KG)
@@ -28,7 +29,7 @@ class TestParseText:
         Проверяем, что работает регулярное выражение: (\b\d{2,3}(?:[.,]\d)?)\s*(кг|kg)$, которое ищет и возвращает
         значения(float) в кг, если не находит, то None
         """
-        value = ParseText(text).parse_kg()
+        value = ParseText(text).parse_weight()
         assert value == exp_value, (f"Ошибка, ожидали что для текста '{text}' распарсится значение == {exp_value}, "
                                     f"получили {value}")
 

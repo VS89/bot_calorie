@@ -7,7 +7,7 @@ class ParseText:
     def __init__(self, text: str):
         self._text = text
 
-    def parse_kg(self) -> float | None:
+    def parse_weight(self) -> float | None:
         """
         Парсим значение кг из текста
         """

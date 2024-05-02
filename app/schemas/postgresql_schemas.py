@@ -14,7 +14,7 @@ class MessagesSchemas(BaseModel):
     message_id: int = Field(...)
     text: str | None = Field(None)
     activity_coef: int | None = Field(None)
-    confirmation_action_flag: bool | None = Field(False)
+    update_weight: float | None = Field(None)
     statistics_flag: bool | None = Field(False)
 
 
@@ -40,7 +40,7 @@ class UsersSchemas(BaseModel):
                                        description='Дата, когда последний раз были обновлены данные')
     weight: float | None = Field(None)
     activity_coef: int | None = Field(None)
-    calorie_count: int | None = Field(None, description='Норма калорий в день')
+    balance_calorie: int | None = Field(None, description='Норма калорий в день')
 
     @property
     def get_set_string_for_update_data(self) -> str:

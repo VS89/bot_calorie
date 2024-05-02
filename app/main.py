@@ -14,9 +14,14 @@ from app.external_api.telegram_api import TelegramApi
 from app.handler.commands.command_activity_coef import HandlerCommandActivityCoef
 from app.handler.commands.command_help import HandlerCommandHelp
 from app.handler.commands.command_start import HandlerCommandStart
+from app.handler.handler_edit_weight import HandlerEditWeight
 from app.handler.messages.handler_text import HandlerText
+from app.models.handlers_model import HandlersModel
 from app.models.telegram.tg_request_models import SendMessageModel
 from app.models.telegram.tg_response_models import TelegramResponse, EntitiesType
+
+
+handlers = HandlersModel()
 
 
 @asynccontextmanager
@@ -25,9 +30,14 @@ async def lifespan(app_: FastAPI):
     pg = PGConnectionManager()
     await pg.get_cursor()
     app_.pg = pg
+    handlers.handler_edit_weight = HandlerEditWeight(tg_api_client=tg_api_client, users_db=pg.users_db,
+                                                     statistics_db=pg.statistics_db, messages_db=pg.messages_db)
+    handlers.handler_activity_coef = HandlerCommandActivityCoef(tg_api_client=tg_api_client, message_db=pg.messages_db,
+                                                                users_db=pg.users_db)
     yield
     logging.info("Закрываю подключение к бд")
     await pg.close()
+
 
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -44,8 +54,6 @@ tg_api_client = TelegramApi(telegram_api_token=TOKEN)
 
 app = FastAPI(lifespan=lifespan)
 
-handler_activity_coef = HandlerCommandActivityCoef(tg_api_client=tg_api_client)
-
 
 @app.post(f"/webhook{TOKEN}")
 async def webhook(req: Request):
@@ -58,9 +66,13 @@ async def webhook(req: Request):
             #  когда жмут кнопку хер знает когда
             match response_model.callback_query.data.split('_'):
                 case PrefixCallbackData.ACTIVITY_COEF, *v:
-                    await handler_activity_coef.handler_callback_data(callback_query=response_model.callback_query,
-                                                                      users_db=req.app.pg.users_db,
-                                                                      message_db=req.app.pg.messages_db)
+                    await handlers.handler_activity_coef.handler_callback_data(
+                        callback_query=response_model.callback_query
+                    )
+                case PrefixCallbackData.KG, *v:
+                    await handlers.handler_edit_weight.handler_callback_data_edit_weight(
+                        callback_query=response_model.callback_query
+                    )
                 case _:
                     logging.error(f'Получили неизвестный и необработанный callback: {response_model.callback_query}')
             return
@@ -75,8 +87,7 @@ async def webhook(req: Request):
                     case CommandName.HELP:
                         await HandlerCommandHelp(tg_api_client=tg_api_client, chat_id=chat_id).send_help_message()
                     case CommandName.ACTIVITY_COEF:
-                        await handler_activity_coef.send_activity_coef_message(chat_id=chat_id,
-                                                                               message_db=req.app.pg.messages_db)
+                        await handlers.handler_activity_coef.send_activity_coef_message(chat_id=chat_id)
                     case CommandName.STATISTICS:
                         text = f"Обработка команды {CommandName.STATISTICS}"
                     case CommandName.EXPORT:
@@ -91,12 +102,14 @@ async def webhook(req: Request):
             chat_id=response_model.message.chat.user_id,
             statistics_db=req.app.pg.statistics_db,
             messages_db=req.app.pg.messages_db,
-            users_db=req.app.pg.users_db
+            users_db=req.app.pg.users_db,
+            handlers=handlers
         ).handler_text(text=response_model.message.text)
     except Exception as e:
         logging.error(e)
 
     return data
+
 
 # todo скрывать inline-кнопки, после того как было обработано их событие
 # tg id 281626882

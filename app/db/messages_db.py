@@ -16,9 +16,9 @@ class MessagesDB:
         Сохраняем сообщение в таблицу
         """
         await self._cursor.execute(
-            "INSERT INTO messages(user_id, activity_coef, confirmation_action_flag, statistics_flag, "
+            "INSERT INTO messages(user_id, activity_coef, update_weight, statistics_flag, "
             "text, message_id) VALUES (%s, %s, %s, %s, %s, %s);",
-            (data.user_id, data.activity_coef, data.confirmation_action_flag, data.statistics_flag,
+            (data.user_id, data.activity_coef, data.update_weight, data.statistics_flag,
              data.text, data.message_id))
 
     async def get_last_message_by_user_id(self, user_id: int) -> MessagesSchemas | None:

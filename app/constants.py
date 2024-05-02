@@ -112,5 +112,3 @@ class TextBotMessage:
     CONFIRM_RESAVE_NEW_WEIGHT = "Сегодня был добавлен вес {} кг. Заменить?"
 
     SAVE_OLD_WEIGHT = "Оставили вес равный {} кг"
-
-

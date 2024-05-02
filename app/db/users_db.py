@@ -26,7 +26,7 @@ class UsersDB:
         Добавление строки в таблицу юзеров
         """
         await self._cursor.execute(
-            "INSERT INTO public.users(user_id, weight, activity_coef, date_update_data) "
+            "INSERT INTO users (user_id, weight, activity_coef, date_update_data) "
             "VALUES (%s, %s, %s, %s);", (data.user_id, data.weight, data.activity_coef, data.date_update_data))
 
     async def update_data(self, data: UsersSchemas):
