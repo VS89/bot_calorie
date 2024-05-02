@@ -13,21 +13,23 @@ class TestParseText:
         ('Мой вес 111 кг', 111.0),
         ('Мой вес 44    кг', 44.0),
         ('Мой вес 77KG', 77.0),
+        ('Мой вес 77KGasdkj', None),
         ('Мой вес 82.0кг', 82.0),
         ('Мой вес 82,7 кг', 82.7),
         ('Мой вес 99;1кг', None),
         ('Мой вес 111,1      кг', 111.1),
         ('Мой вес 123 asdqwe кг', None),
+        ('Мой вес  00kg', None),
         ('кг', None),
         (f'Мой вес {LimitValues.MAX_VALUE_KG}кг', LimitValues.MAX_VALUE_KG),
         (f'Мой вес {LimitValues.MIN_VALUE_KG}кг', LimitValues.MIN_VALUE_KG)
     ])
     def test_parse_kg(self, text, exp_value):
         """
-        Проверяем, что работает регулярное выражение: (\b\d{2,3}(?:[.,]\d)?)\s*(кг|kg), которое ищет и возвращает
+        Проверяем, что работает регулярное выражение: (\b\d{2,3}(?:[.,]\d)?)\s*(кг|kg)$, которое ищет и возвращает
         значения(float) в кг, если не находит, то None
         """
-        value = ParseText(text).parse_kg()
+        value = ParseText(text).parse_weight()
         assert value == exp_value, (f"Ошибка, ожидали что для текста '{text}' распарсится значение == {exp_value}, "
                                     f"получили {value}")
 
@@ -39,11 +41,12 @@ class TestParseText:
         ('1111 кк', 1111),
         ('1111  ккал', 1111),
         ('- 1111kc', -1111),
-        ('+  1111kcal', 1111)
+        ('+  1111kcal', 1111),
+        ('+  1111kcalasd', None)
     ])
     def test_parse_kcal(self, text, exp_value):
         """
-        Проверяем, что работает регулярное выражение: ^([-+])?\s*(\d{1,4})\s*(кк|ккал|kc|kcal),
+        Проверяем, что работает регулярное выражение: ^([-+])?\s*(\d{1,4})\s*(кк|ккал|kc|kcal)$,
         которое ищет и возвращает значения(int) в ккал, если не находит, то None
         """
         value = ParseText(text).parse_kcal()
