@@ -28,7 +28,8 @@ class HandlerEditWeight:
         await self._statistics_db.insert_row(data=StatisticsSchemas(
             user_id=user.user_id,
             weight=new_value_weight,
-            activity_coef=user.activity_coef
+            activity_coef=user.activity_coef,
+            balance_calorie=user.balance_calorie
         ))
         balance_calorie = BalanceCalorie(weight=new_value_weight,
                                          activity_coef=user.activity_coef).get_balance_calorie_count

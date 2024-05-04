@@ -23,6 +23,13 @@ class StatisticsDB:
         print(res)
         return res
 
+    async def get_statistics_by_days(self, count_days: int | str) -> list[StatisticsSchemas] | None:
+        await self._cursor.execute(f"SELECT row_to_json(t) FROM (SELECT * FROM statistics "
+                                   f"WHERE save_date >= CURRENT_DATE - INTERVAL '{count_days} days' "
+                                   f"ORDER BY save_date) t;")
+        result = await self._cursor.fetchall()
+        return [StatisticsSchemas(**i[0]) for i in result] if result else None
+
     async def get_user_by_id(self, user_id: int) -> list[tuple] | None:
         """
         Получаем пользователя по id из таблицы статистики
@@ -39,9 +46,9 @@ class StatisticsDB:
         """
         # todo разобраться можно ли как-то не через %s залить данные
         await self._cursor.execute(
-            "INSERT INTO statistics(weight, kcal, activity_coef, save_date, user_id) "
-            "VALUES (%s, %s, %s, %s, %s);", (data.weight, data.kcal, data.activity_coef, data.save_date,
-                                             data.user_id))
+            "INSERT INTO statistics(weight, kcal, activity_coef, save_date, user_id, balance_calorie) "
+            "VALUES (%s, %s, %s, %s, %s, %s);", (data.weight, data.kcal, data.activity_coef, data.save_date,
+                                                 data.user_id, data.balance_calorie))
 
     async def get_sum_kcal_for_current_date(self, user_id: int) -> int | None:
         """

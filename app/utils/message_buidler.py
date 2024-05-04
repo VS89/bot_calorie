@@ -2,6 +2,7 @@ from typing import Any
 
 from app.constants import TextBotMessage, PrefixCallbackData, LimitValues
 from app.keyboards import InlineKeyboardButtonModel, InlineKeyboardsModel
+from app.models.daily_statistics_model import DailyStatisticsModel
 from app.models.telegram.tg_request_models import SendMessageModel
 
 
@@ -57,7 +58,22 @@ class MessageBuilder:
     @property
     def confirm_resave_new_weight(self) -> SendMessageModel:
         return self._confirm_message(text_msg=self._text,
-                                     prefix_callback_data=PrefixCallbackData.KG)
+                                     prefix_callback_data=PrefixCallbackData.WEIGHT)
+
+    @property
+    def select_period_statistics(self) -> SendMessageModel:
+        return SendMessageModel(
+            chat_id=self._user_id,
+            text=TextBotMessage.SELECT_PERIOD_STATISTICS,
+            reply_markup=InlineKeyboardsModel(rows=1).create_keyboard(buttons=[
+                InlineKeyboardButtonModel(
+                    text=LimitValues.STATISTIC_10_DAY,
+                    callback_data=f'{PrefixCallbackData.STATISTICS}_{LimitValues.STATISTIC_10_DAY}'),
+                InlineKeyboardButtonModel(
+                    text=LimitValues.STATISTIC_30_DAY,
+                    callback_data=f'{PrefixCallbackData.STATISTICS}_{LimitValues.STATISTIC_30_DAY}'),
+            ])
+        )
 
     def calorie_balance_message(self, kcal_balance: int) -> SendMessageModel:
         if kcal_balance < LimitValues.CALORIE_BALANCE_LIMIT_D:
@@ -73,4 +89,10 @@ class MessageBuilder:
         return SendMessageModel(
             chat_id=self._user_id,
             text=text_msg
+        )
+
+    def statistics_message_by_period(self, statistics_msg_model: list[DailyStatisticsModel]) -> SendMessageModel:
+        return SendMessageModel(
+            chat_id=self._user_id,
+            text=f"{TextBotMessage.STATISTICS_MSG}\n{'\n'.join([i.get_msg for i in statistics_msg_model])}"
         )

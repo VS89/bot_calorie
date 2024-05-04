@@ -20,6 +20,8 @@ class LimitValues:
     CALORIE_BALANCE_LIMIT_B = 490
     CALORIE_BALANCE_LIMIT_C = 100
     CALORIE_BALANCE_LIMIT_D = -50
+    STATISTIC_10_DAY = 10
+    STATISTIC_30_DAY = 30
 
 
 class PrefixCallbackData:
@@ -28,7 +30,8 @@ class PrefixCallbackData:
     """
 
     ACTIVITY_COEF = 'acoef'
-    KG = 'kg'
+    WEIGHT = 'kg'
+    STATISTICS = 'statistics'
 
 
 class TextBotMessage:
@@ -112,3 +115,15 @@ class TextBotMessage:
     CONFIRM_RESAVE_NEW_WEIGHT = "Сегодня был добавлен вес {} кг. Заменить?"
 
     SAVE_OLD_WEIGHT = "Оставили вес равный {} кг"
+
+    SELECT_PERIOD_STATISTICS = "Выбери за какой период, в днях, ты хочешь получить статистику?"
+
+    STATISTICS_NOT_FOUND = "К сожалению мы не смогли найти для вас статистику"
+
+    STATISTICS_MSG = '\n'.join(['1) Дата',
+                                '2) Вес',
+                                '3) Потреблено(кКал)',
+                                '4) Израсходовано(кКал)',
+                                '5) Баланс(кКал)\n\n'])
+
+    CAPTION_CHART_STATISTIC_WEIGHT = 'Твоя динамика веса за {} дней'

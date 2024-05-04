@@ -17,6 +17,7 @@ psycopg2-binary = "^2.9.9"
 aiopg = "^1.4.0"
 pytest = "^8.1.1"
 pytz = "^2024.1"
+matplotlib = "^3.8.4"
 
 
 [build-system]

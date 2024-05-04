@@ -34,33 +34,35 @@ class EditMessageModel(SendMessageModel):
     message_id: int = Field(...)
 
 
-class GetHistoryModel(BaseModel):
-
-    peer: int = Field(..., description='{"_": "channelID"}, // ID канала или чата, где находятся сообщения')
-    offset_id: int = Field(0, description='ID первого сообщения для получения')
-    offset_date: int = Field(0, description='Дата первого сообщения для получения')
-    limit: int = Field(100, description='Максимальное количество сообщений для получения')
-    max_id: int = Field(0, description='ID последнего сообщения, которое уже получено')
-    min_id: int = Field(0, description='ID первого сообщения, которое нужно получить')
-
-
-class GetUpdatesModel(BaseModel):
-
-    model_config = ConfigDict(use_enum_values=True, validate_default=True)
-
-    chat_id: int = Field(...)
-    # offset: int = Field(0)
-    limit: int = Field(0)
-    # timeout: int = Field(0)
-    # allowed_updates: list[AllowedUpdate] = Field([AllowedUpdate.MESSAGE])
-
-
 class AnswerCallbackQueryModel(BaseModel):
+    """
+    Модель для ответа на нажатие inline-кнопки
+    """
 
     callback_query_id: str = Field(...)
     text: str | None = Field(None)
     show_alert: bool = Field(False)
     url: str | None = Field(None)
     cache_time: int | None = Field(0)
+
+
+class SendPhotoModel(BaseModel):
+    """
+    Модель для отправки фото
+    """
+
+    chat_id: int | str = Field(...)
+    photo_path: str = Field(...)
+    photo_name: str | None = Field(default='output.png')
+    caption: str | None = Field(default='')
+
+    @property
+    def files_dict(self) -> dict:
+        return {
+            'chat_id': (None, str(self.chat_id)),
+            'photo': (self.photo_name, open(self.photo_path, 'rb'), 'image/png'),
+            'caption': (None, self.caption)
+        }
+
 
 
