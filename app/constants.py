@@ -4,7 +4,20 @@ from app.keyboards import InlineKeyboardsModel, InlineKeyboardButtonModel
 from app.models.telegram.tg_request_models import SendMessageModel
 
 
+class FormatFile:
+    """
+    Форматы файлов
+    """
+
+    PNG = 'png'
+    CSV = 'csv'
+
+
 class CommandName:
+    """
+    Команды бота
+    """
+
     START = '/start'
     HELP = '/help'
     ACTIVITY_COEF = '/activity_coef'
@@ -13,6 +26,10 @@ class CommandName:
 
 
 class LimitValues:
+    """
+    Лимиты
+    """
+
     MIN_VALUE_KG = 40
     MAX_VALUE_KG = 250
     CALORIE_DEFICIT = 500
@@ -20,6 +37,8 @@ class LimitValues:
     CALORIE_BALANCE_LIMIT_B = 490
     CALORIE_BALANCE_LIMIT_C = 100
     CALORIE_BALANCE_LIMIT_D = -50
+    STATISTIC_10_DAY = 10
+    STATISTIC_30_DAY = 30
 
 
 class PrefixCallbackData:
@@ -28,10 +47,15 @@ class PrefixCallbackData:
     """
 
     ACTIVITY_COEF = 'acoef'
-    KG = 'kg'
+    WEIGHT = 'kg'
+    STATISTICS = 'statistics'
 
 
 class TextBotMessage:
+    """
+    Сообщения бота
+    """
+
     ACTIVITY_COEF_FIRST_MSG_FOR_NEW_USER = '\n'.join([
         'И последний шаг перед стартом нашего пути это ввод коэффициента активности. '
         'Выбери его на клавиатуре под сообщением где:',
@@ -112,3 +136,15 @@ class TextBotMessage:
     CONFIRM_RESAVE_NEW_WEIGHT = "Сегодня был добавлен вес {} кг. Заменить?"
 
     SAVE_OLD_WEIGHT = "Оставили вес равный {} кг"
+
+    SELECT_PERIOD_STATISTICS = "Выбери за какой период, в днях, ты хочешь получить статистику?"
+
+    STATISTICS_NOT_FOUND = "К сожалению мы не смогли найти для вас статистику"
+
+    STATISTICS_MSG = '\n'.join(['1) Дата',
+                                '2) Вес',
+                                '3) Потреблено(кКал)',
+                                '4) Израсходовано(кКал)',
+                                '5) Баланс(кКал)\n\n'])
+
+    CAPTION_CHART_STATISTIC_WEIGHT = 'Твоя динамика веса за {} дней'

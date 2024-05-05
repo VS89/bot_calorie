@@ -130,11 +130,13 @@ class HandlerText:
         """
         Добавление килокалорий
         """
-        statistics_schemas = StatisticsSchemas(user_id=user.user_id,
-                                               weight=user.weight,
-                                               activity_coef=user.activity_coef,
-                                               kcal=value_kc)
-        await self._statistics_db.insert_row(data=statistics_schemas)
+        await self._statistics_db.insert_row(data=StatisticsSchemas(
+            user_id=user.user_id,
+            weight=user.weight,
+            activity_coef=user.activity_coef,
+            kcal=value_kc,
+            balance_calorie=user.balance_calorie
+        ))
         kcal_sum = await self._statistics_db.get_sum_kcal_for_current_date(user_id=user.user_id)
         logging.info(f"Для пользователя {user.user_id} текущий баланс ккал == {kcal_sum}")
         kcal_balance = user.balance_calorie - kcal_sum - LimitValues.CALORIE_DEFICIT
@@ -172,6 +174,14 @@ class HandlerText:
 
                 case value if TextBotMessage.CONFIRM_CHANGE_ACTIVITY_COEF_MSG[:-3] in value:
                     await self._confirm_change_activity_coef(user=user, text=text, last_message=last_message)
+                    return
+
+                case TextBotMessage.SELECT_PERIOD_STATISTICS:
+                    await self._handlers.handler_statistics.handler_text_message_select_period_statistics(
+                        user_id=user.user_id,
+                        text=text,
+                        last_message=last_message
+                    )
                     return
 
                 case _:
@@ -225,7 +235,8 @@ class HandlerText:
                 await self._statistics_db.insert_row(data=StatisticsSchemas(
                     user_id=user.user_id,
                     weight=value_weight,
-                    activity_coef=user.activity_coef
+                    activity_coef=user.activity_coef,
+                    balance_calorie=balance_calorie
                 ))
 
                 await self._client.send_message(

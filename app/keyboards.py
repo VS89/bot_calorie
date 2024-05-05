@@ -10,7 +10,7 @@ class InlineKeyboardButtonModel(BaseModel):
     Inline кнопка для клавиатуры
     """
 
-    text: str = Field(...)
+    text: str | int = Field(...)
     callback_data: str | None = Field(None)
 
     @property

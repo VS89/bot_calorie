@@ -15,7 +15,7 @@ class MessagesSchemas(BaseModel):
     text: str | None = Field(None)
     activity_coef: int | None = Field(None)
     update_weight: float | None = Field(None)
-    statistics_flag: bool | None = Field(False)
+    statistics_days: int | None = Field(None)
 
 
 class StatisticsSchemas(BaseModel):
@@ -24,6 +24,7 @@ class StatisticsSchemas(BaseModel):
     """
 
     user_id: int = Field(...)
+    balance_calorie: int = Field(...)
     save_date: datetime = Field(default_factory=CurrentDate.get_now, description='Дата с указанием тайм зоны')
     weight: float | None = Field(None)
     kcal: int | None = Field(None)
