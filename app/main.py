@@ -2,7 +2,6 @@ import logging
 from contextlib import asynccontextmanager
 
 import httpx
-import requests
 import uvicorn
 import uvloop
 from fastapi import FastAPI
@@ -19,17 +18,20 @@ from app.handler.commands.command_statistics import HandlerStatistics
 from app.handler.handler_edit_weight import HandlerEditWeight
 from app.handler.messages.handler_text import HandlerText
 from app.models.handlers_model import HandlersModel
-from app.models.telegram.tg_request_models import SendMessageModel
 from app.models.telegram.tg_response_models import TelegramResponse, EntitiesType
+from app.utils.settings import SettingsModel
 
-
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+settings = SettingsModel()
 handlers = HandlersModel()
+client = httpx.AsyncClient()
+tg_api_client = TelegramApi(telegram_api_token=settings.tg_api_token)
 
 
 @asynccontextmanager
 async def lifespan(app_: FastAPI):
     logging.info("Открываю подключение к бд")
-    pg = PGConnectionManager()
+    pg = PGConnectionManager(settings=settings)
     await pg.get_cursor()
     app_.pg = pg
     handlers.handler_edit_weight = HandlerEditWeight(tg_api_client=tg_api_client, users_db=pg.users_db,
@@ -44,31 +46,16 @@ async def lifespan(app_: FastAPI):
     await pg.close()
 
 
-
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-# logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
-
-# todo токен надо спрятать в pydantic setting модель
-TOKEN = "7126934059:AAF5QjfYEOKtolSuYYttRXBTnv0CLD5TMlI"
-
-# todo надо будет написать свой апи класс для работы с телегой
-BASE_URL = f"https://api.telegram.org/bot{TOKEN}"
-
-client = httpx.AsyncClient()
-tg_api_client = TelegramApi(telegram_api_token=TOKEN)
-
 app = FastAPI(lifespan=lifespan)
 
 
-@app.post(f"/webhook{TOKEN}")
+@app.post(f"/webhook{settings.tg_api_token}")
 async def webhook(req: Request):
     data = await req.json()
     logging.info(f"{data=}")
     try:
         response_model = TelegramResponse(**data)
         if response_model.callback_query:
-            # todo все таки думаю убрать кнопки после нажатия, чтобы не думать о багах, которые могут быть,
-            #  когда жмут кнопку хер знает когда
             match response_model.callback_query.data.split('_'):
                 case PrefixCallbackData.ACTIVITY_COEF, *v:
                     await handlers.handler_activity_coef.handler_callback_data(
@@ -120,9 +107,6 @@ async def webhook(req: Request):
     return data
 
 
-# todo скрывать inline-кнопки, после того как было обработано их событие
-# tg id 281626882
-# DELETE FROM statistics WHERE user_id = 281626882;
 if __name__ == '__main__':
     # tuna_url = "https://pohudiziryi-bot-tg.ru.tuna.am"
     # todo запрос нужен чтобы заработал вебхук, его надо перенести в startup event

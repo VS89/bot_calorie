@@ -1,7 +1,6 @@
 from aiopg import Cursor
 
 from app.schemas.postgresql_schemas import UsersSchemas
-from app.utils.utils import CurrentDate
 
 
 class UsersDB:

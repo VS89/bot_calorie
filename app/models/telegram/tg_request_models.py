@@ -82,6 +82,3 @@ class SendDocumentModel(BaseModel):
             'document': (self.document_name, open(self.document_path, 'rb'), self.document_extension),
             'caption': (None, self.caption)
         }
-
-
-

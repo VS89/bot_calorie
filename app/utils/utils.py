@@ -49,4 +49,3 @@ class FileName:
         :return:
         """
         return self._get_file_path(file_name='export_statistics', format_file=FormatFile.CSV)
-

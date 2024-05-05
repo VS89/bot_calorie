@@ -82,9 +82,6 @@ class HandlerText:
     async def _confirm_change_activity_coef(self, user: UsersSchemas, text: str, last_message: MessagesSchemas):
         if TextBotMessage.YES.lower() == text.lower():
             logging.info("Ты написал Да, после того как получил окно про подтверждение")
-            # todo этот блок и блок в обработке кнопок можно вынести в одну функцию
-            # todo подумать насчет этого класса, потому что иногда нам надо будет парсить text,
-            #  а иногда last_message.text
             activity_coef = ParseText(last_message.text).parse_digit()
             balance_calorie = BalanceCalorie(weight=user.weight,
                                              activity_coef=activity_coef).get_balance_calorie_count
@@ -101,7 +98,6 @@ class HandlerText:
 
         elif TextBotMessage.NO.lower() == text.lower():
             logging.info("Ты написал Нет, после того как получил окно про подтверждение")
-            # todo этот блок и блок в обработке кнопок можно вынести в одну функцию
             await self._client.send_message(data=SendMessageModel(
                 chat_id=user.user_id,
                 text=TextBotMessage.FAILED_CONFIRM_CHANGE_ACTIVITY_COEF_MSG
@@ -159,8 +155,6 @@ class HandlerText:
         if last_message is not None:
             logging.info(f'Последнее сообщение в чате пользователя {self._chat_id} было "{last_message.text}" '
                          f'с message_id == {last_message.message_id}')
-            # todo подумать насчет этого класса, потому что иногда нам надо
-            #  будет парсить text, а иногда last_message.text
             match last_message.text:
 
                 case TextBotMessage.SECOND_START_MSG_FOR_NEW_USER:
@@ -201,9 +195,6 @@ class HandlerText:
                 logging.info(f"Распарсили кол-во ккал == {value_kc}")
                 await self._added_kc(value_kc=value_kc, user=user)
                 return
-            # todo нужно дописать обработку
-            # todo еще раз перепроверить обработку текста и нажатия на кнопки, но сейчас вроде
-            #  бы все работает для обновления КГ)
             if value_weight := parse_text.parse_weight():
                 logging.info(f"Распарсили кол-во kg == {value_weight}")
                 count_uniq_weight = await self._statistics_db.get_count_uniq_weight_by_user_id_today(

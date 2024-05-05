@@ -56,4 +56,3 @@ class HandlerCommandStart:
     async def handler_start_command(self):
         await self._send_start_message()
         await self._send_second_message_after_first_start()
-
