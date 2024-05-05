@@ -24,7 +24,7 @@ class HandlerStatistics:
         self._statistics_db = statistics_db
 
     @staticmethod
-    def _get_daily_statistics(statistics: list[StatisticsSchemas]) -> list[DailyStatisticsModel]:
+    def get_daily_statistics(statistics: list[StatisticsSchemas]) -> list[DailyStatisticsModel]:
         """
         Рассчитываем статистику за каждый день
         """
@@ -41,24 +41,29 @@ class HandlerStatistics:
             sum_kc_positive = 0
             sum_kc_negative = 0
             sum_balance_calorie = 0
-            sum_weight_calorie = 0
+            sum_weight = 0
+            sum_activity_coef = 0
             for value in dict_statistics[date]:
                 if value.kcal is not None:
                     if value.kcal > 0:
                         sum_kc_positive += value.kcal
                     else:
                         sum_kc_negative += abs(value.kcal)
-                sum_weight_calorie += value.weight
+                sum_weight += value.weight
                 sum_balance_calorie += value.balance_calorie
-            avg_weight = sum_weight_calorie / len(dict_statistics[date])
-            avg_balance_calorie = sum_balance_calorie / len(dict_statistics[date])
+                sum_activity_coef += value.activity_coef
+            len_value_statistics = len(dict_statistics[date])
+            avg_weight = round((sum_weight / len_value_statistics), 1)
+            avg_balance_calorie = sum_balance_calorie / len_value_statistics
+            avg_activity_coef = round(sum_activity_coef / len_value_statistics)
             daily_balance_calorie = int(avg_balance_calorie - sum_kc_positive + sum_kc_negative)
             daily_statistics.append(DailyStatisticsModel(
                 date=date,
                 avg_weight=avg_weight,
                 sum_kc_positive=sum_kc_positive,
                 sum_kc_negative=sum_kc_negative,
-                daily_balance_calorie=daily_balance_calorie
+                daily_balance_calorie=daily_balance_calorie,
+                avg_activity_coef=avg_activity_coef
             ))
         return daily_statistics
 
@@ -82,8 +87,8 @@ class HandlerStatistics:
         if text.isnumeric() and (int(text) == LimitValues.STATISTIC_10_DAY or
                                  int(text) == LimitValues.STATISTIC_30_DAY):
             statistics = await self._statistics_db.get_statistics_by_days(count_days=int(text) - 1)
-            daily_statistics = self._get_daily_statistics(statistics=statistics)
-            chart_path = create_chart_png(daily_statistics)
+            daily_statistics = self.get_daily_statistics(statistics=statistics)
+            chart_path = create_chart_png(daily_statistics=daily_statistics, user_id=user_id)
             await self._tg_api_client.send_message(data=MessageBuilder(
                 user_id=user_id).statistics_message_by_period(daily_statistics))
             await self._tg_api_client.send_photo(data=SendPhotoModel(
@@ -115,8 +120,8 @@ class HandlerStatistics:
         if statistics:
             logging.info(f"Для пользователя {user.user_id}. Статистика == {statistics}")
             statistics = await self._statistics_db.get_statistics_by_days(count_days=int(callback_data) - 1)
-            daily_statistics = self._get_daily_statistics(statistics=statistics)
-            chart_path = create_chart_png(daily_statistics)
+            daily_statistics = self.get_daily_statistics(statistics=statistics)
+            chart_path = create_chart_png(daily_statistics=daily_statistics, user_id=user.user_id)
             await self._tg_api_client.send_message(data=MessageBuilder(
                 user_id=callback_query.from_user.user_id).statistics_message_by_period(daily_statistics))
             await self._tg_api_client.send_photo(data=SendPhotoModel(

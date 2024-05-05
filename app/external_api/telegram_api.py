@@ -3,7 +3,7 @@ import logging
 import httpx
 
 from app.models.telegram.tg_request_models import SendMessageModel, EditMessageModel, AnswerCallbackQueryModel, \
-    SendPhotoModel
+    SendPhotoModel, SendDocumentModel
 from app.models.telegram.tg_response_models import MessageModel
 
 
@@ -41,10 +41,26 @@ class TelegramApi:
         """
         resp = await self._client.post(f"{self._base_url}/answerCallbackQuery", data=data.model_dump())
         resp_json = resp.json()
-        logging.info(f"answer callback query {resp_json}")
+        if resp_json.get('ok'):
+            return
+        logging.error(f"Не смогли ответить на нажатие кнопки, answer callback query: {resp_json}")
         
     async def send_photo(self, data: SendPhotoModel):
         """
         Отправляем фото
         """
-        await self._client.post(f"{self._base_url}/sendPhoto", files=data.files_dict)
+        resp = await self._client.post(f"{self._base_url}/sendPhoto", files=data.files_dict)
+        resp_json = resp.json()
+        if resp_json.get('ok'):
+            return
+        logging.error(f'Не смогли отправить фото со статистикой в чат: {data.chat_id}.\n{resp_json}')
+
+    async def send_document(self, data: SendDocumentModel):
+        """
+        Отправляем документ
+        """
+        resp = await self._client.post(f"{self._base_url}/sendDocument", files=data.files_dict)
+        resp_json = resp.json()
+        if resp_json.get('ok'):
+            return
+        logging.error(f'Не смогли отправить документ с телом: {data.files_dict} в чат: {data.chat_id}.\n{resp_json}')

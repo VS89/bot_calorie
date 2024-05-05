@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class DailyStatisticsModel(BaseModel):
@@ -8,8 +8,9 @@ class DailyStatisticsModel(BaseModel):
     sum_kc_positive: int = Field(default=..., description="Сумма приобретенных кКал")
     sum_kc_negative: int = Field(default=..., description="Сумма потраченных кКал")
     daily_balance_calorie: int = Field(default=..., description="Баланс кКал за день")
+    avg_activity_coef: int = Field(default=..., description="Округленное среднее значение коэффициента активности")
 
     @property
     def get_msg(self) -> str:
-        return (f"{self.date}, {self.avg_weight:.1f}, {self.sum_kc_positive}, {self.sum_kc_negative}, "
+        return (f"{self.date}, {self.avg_weight}, {self.sum_kc_positive}, {self.sum_kc_negative}, "
                 f"{self.daily_balance_calorie}")

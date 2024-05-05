@@ -65,4 +65,23 @@ class SendPhotoModel(BaseModel):
         }
 
 
+class SendDocumentModel(BaseModel):
+    """
+    Модель для отправки файла
+    """
+    chat_id: int | str = Field(...)
+    document_path: str = Field(...)
+    document_extension: str = Field(default='text/csv')
+    document_name: str | None = Field(default='document')
+    caption: str | None = Field(default='')
+
+    @property
+    def files_dict(self):
+        return {
+            'chat_id': (None, str(self.chat_id)),
+            'document': (self.document_name, open(self.document_path, 'rb'), self.document_extension),
+            'caption': (None, self.caption)
+        }
+
+
 

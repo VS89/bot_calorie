@@ -4,7 +4,20 @@ from app.keyboards import InlineKeyboardsModel, InlineKeyboardButtonModel
 from app.models.telegram.tg_request_models import SendMessageModel
 
 
+class FormatFile:
+    """
+    Форматы файлов
+    """
+
+    PNG = 'png'
+    CSV = 'csv'
+
+
 class CommandName:
+    """
+    Команды бота
+    """
+
     START = '/start'
     HELP = '/help'
     ACTIVITY_COEF = '/activity_coef'
@@ -13,6 +26,10 @@ class CommandName:
 
 
 class LimitValues:
+    """
+    Лимиты
+    """
+
     MIN_VALUE_KG = 40
     MAX_VALUE_KG = 250
     CALORIE_DEFICIT = 500
@@ -35,6 +52,10 @@ class PrefixCallbackData:
 
 
 class TextBotMessage:
+    """
+    Сообщения бота
+    """
+
     ACTIVITY_COEF_FIRST_MSG_FOR_NEW_USER = '\n'.join([
         'И последний шаг перед стартом нашего пути это ввод коэффициента активности. '
         'Выбери его на клавиатуре под сообщением где:',
