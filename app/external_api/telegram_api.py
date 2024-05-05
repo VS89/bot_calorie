@@ -19,7 +19,6 @@ class TelegramApi:
         """
         resp = await self._client.post(f"{self._base_url}/sendMessage", data=data.model_dump())
         resp_json = resp.json()
-        # todo добавить обработку ошибки если не смогли отправить сообщение
         if resp_json.get('ok'):
             return MessageModel(**resp_json['result'])
         logging.error(f"Не смогли отправить сообщение в чат: {data.chat_id}")
@@ -30,7 +29,6 @@ class TelegramApi:
         """
         resp = await self._client.post(f"{self._base_url}/editMessageText", data=data.model_dump())
         resp_json = resp.json()
-        # todo добавить обработку ошибки если не смогли отправить сообщение
         if resp_json.get('ok'):
             return MessageModel(**resp_json['result'])
         logging.error(f"Не смогли отредактировать сообщение {data.message_id} в чате: {data.chat_id}")

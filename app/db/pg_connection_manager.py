@@ -3,16 +3,19 @@ import aiopg
 from app.db.messages_db import MessagesDB
 from app.db.statistics_db import StatisticsDB
 from app.db.users_db import UsersDB
+from app.utils.settings import SettingsModel
 
 
 class PGConnectionManager:
-    def __init__(self):
-        self._dsn = f'dbname=test_db user=valentins password=$yUi6g5uJoPbeN*GgEZr host=127.0.0.1'
+    def __init__(self, settings: SettingsModel):
+        self._dsn = (f'dbname={settings.db_name} user={settings.db_user} password={settings.db_password} '
+                     f'host={settings.db_host}')
         self._pool = None
         self._connection = None
         self._cursor = None
         self._statistics_db: StatisticsDB | None = None
         self._messages_db: MessagesDB | None = None
+        self._users_db: UsersDB | None = None
 
     async def _get_pool(self):
         if self._pool is None or self._pool.closed:

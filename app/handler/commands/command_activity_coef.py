@@ -36,6 +36,9 @@ class HandlerCommandActivityCoef:
         """
         Обработка нажатия кнопок для коэфа активности
         """
+        await self._client.answer_callback_query(data=AnswerCallbackQueryModel(
+            callback_query_id=callback_query.callback_query_id
+        ))
         callback_data = callback_query.data.split('_')[-1]
         logging.info(f'Обработка callback_data == {callback_data}')
         user = await self._users_db.get_user_by_user_id(user_id=callback_query.from_user.user_id)
@@ -55,7 +58,6 @@ class HandlerCommandActivityCoef:
                 ))
                 await self._message_db.delete_all_message_user(user_id=user.user_id)
             else:
-                # todo поменять это сообщение на отправку answer callback query, чтобы кнопка долго не горела
                 resp = await self._client.send_message(data=MessageBuilder(
                     user_id=user.user_id, callback_data=callback_data).confirm_activity_coef_msg)
 
@@ -71,13 +73,8 @@ class HandlerCommandActivityCoef:
                 text=TextBotMessage.FAILED_CONFIRM_CHANGE_ACTIVITY_COEF_MSG
             ))
             await self._message_db.delete_all_message_user(user_id=user.user_id)
-        # todo надо такую же штуку с отпилом кнопок в сообщении замутить, когда мы на такие сообщения текстом отвечаем
         await self._client.edit_message(data=EditMessageModel(
             chat_id=user.user_id,
             message_id=callback_query.message.message_id,
             text=callback_query.message.text
         ))
-        await self._client.answer_callback_query(data=AnswerCallbackQueryModel(
-            callback_query_id=callback_query.callback_query_id
-        ))
-

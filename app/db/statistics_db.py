@@ -1,5 +1,3 @@
-import datetime
-
 from aiopg import Cursor
 
 from app.schemas.postgresql_schemas import StatisticsSchemas
@@ -21,10 +19,15 @@ class StatisticsDB:
         result = await self._cursor.fetchall()
         return [StatisticsSchemas(**i[0]) for i in result] if result else None
 
-    async def get_statistics_by_days(self, count_days: int | str) -> list[StatisticsSchemas] | None:
+    async def get_statistics_by_days(self, count_days: int | str, user_id: int) -> list[StatisticsSchemas] | None:
+        """
+        Получаем статистику за количество дней == count_days
+        :param count_days:
+        :return:
+        """
         await self._cursor.execute(f"SELECT row_to_json(t) FROM (SELECT * FROM statistics "
                                    f"WHERE save_date >= CURRENT_DATE - INTERVAL '{count_days} days' "
-                                   f"ORDER BY save_date) t;")
+                                   f"AND user_id = {user_id} ORDER BY save_date) t;")
         result = await self._cursor.fetchall()
         return [StatisticsSchemas(**i[0]) for i in result] if result else None
 
@@ -40,7 +43,6 @@ class StatisticsDB:
         """
         Добавляем строку
         """
-        # todo разобраться можно ли как-то не через %s залить данные
         await self._cursor.execute(
             "INSERT INTO statistics(weight, kcal, activity_coef, save_date, user_id, balance_calorie) "
             "VALUES (%s, %s, %s, %s, %s, %s);", (data.weight, data.kcal, data.activity_coef, data.save_date,

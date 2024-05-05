@@ -86,14 +86,13 @@ class HandlerStatistics:
         """
         if text.isnumeric() and (int(text) == LimitValues.STATISTIC_10_DAY or
                                  int(text) == LimitValues.STATISTIC_30_DAY):
-            statistics = await self._statistics_db.get_statistics_by_days(count_days=int(text) - 1)
+            statistics = await self._statistics_db.get_statistics_by_days(count_days=int(text) - 1, user_id=user_id)
             daily_statistics = self.get_daily_statistics(statistics=statistics)
             chart_path = create_chart_png(daily_statistics=daily_statistics, user_id=user_id)
             await self._tg_api_client.send_message(data=MessageBuilder(
                 user_id=user_id).statistics_message_by_period(daily_statistics))
             await self._tg_api_client.send_photo(data=SendPhotoModel(
                 chat_id=user_id,
-                # todo научится генерить названия и сохранять в .files, подробней описал в obsidian
                 photo_path=chart_path,
                 caption=TextBotMessage.CAPTION_CHART_STATISTIC_WEIGHT.format(text)
             ))
@@ -116,17 +115,16 @@ class HandlerStatistics:
         callback_data = callback_query.data.split('_')[-1]
         logging.info(f'Обработка callback_data == {callback_data} для статистики')
         user = await self._users_db.get_user_by_user_id(user_id=callback_query.from_user.user_id)
-        statistics = await self._statistics_db.get_statistics_by_days(count_days=callback_data)
+        statistics = await self._statistics_db.get_statistics_by_days(count_days=int(callback_data) - 1,
+                                                                      user_id=callback_query.from_user.user_id)
         if statistics:
             logging.info(f"Для пользователя {user.user_id}. Статистика == {statistics}")
-            statistics = await self._statistics_db.get_statistics_by_days(count_days=int(callback_data) - 1)
             daily_statistics = self.get_daily_statistics(statistics=statistics)
             chart_path = create_chart_png(daily_statistics=daily_statistics, user_id=user.user_id)
             await self._tg_api_client.send_message(data=MessageBuilder(
                 user_id=callback_query.from_user.user_id).statistics_message_by_period(daily_statistics))
             await self._tg_api_client.send_photo(data=SendPhotoModel(
                 chat_id=callback_query.from_user.user_id,
-                # todo научится генерить названия и сохранять в .files, подробней описал в obsidian
                 photo_path=chart_path,
                 caption=TextBotMessage.CAPTION_CHART_STATISTIC_WEIGHT.format(callback_data)
             ))
