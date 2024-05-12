@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+#  db:
+#    container_name: postgresql
+#    image: postgres:16.2
+#    restart: always
+
+  tg_bot:
+    container_name: tg_bot_calorie
+    command: python main.py
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#    networks:
+#      - '127.0.0.1'
+    environment:
+      PYTHONPATH: .
+    restart: unless-stopped
