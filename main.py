@@ -108,10 +108,6 @@ async def webhook(req: Request):
 
 
 if __name__ == '__main__':
-    # tuna_url = "https://pohudiziryi-bot-tg.ru.tuna.am"
-    # todo запрос нужен чтобы заработал вебхук, его надо перенести в startup event
-    # resp = requests.get(url=f"https://api.telegram.org/bot{TOKEN}/setWebhook?url={tuna_url}/webhook{TOKEN}")
-    # logging.info(f"Ответ от метода установки хука для телеги: {resp.json()}")
     uvloop.install()
     uvicorn.run('main:app',
                 host='0.0.0.0',
