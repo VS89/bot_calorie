@@ -110,7 +110,7 @@ class TextBotMessage:
     FAILED_CONFIRM_CHANGE_ACTIVITY_COEF_MSG = 'Хорошо, оставим все как было'
     YES = 'Да'
     NO = 'Нет'
-    CAN_HANDLER_ONLY_TEXT = 'К сожалению я могу обрабатывать только текстовые сообщения'
+    CAN_HANDLER_ONLY_TEXT = 'К сожалению, я могу обрабатывать только текстовые сообщения'
     KCAL_BALANCE_LESS_MINUS_50 = 'Кажется, сегодня ты облопался!'
     KCAL_BALANCE_MORE_MINUS_50_LESS_100 = 'Сегодня ты не поправился!'
     KCAL_BALANCE_MORE_100_LESS_490 = 'Сегодня ты немножко молодец!'
@@ -122,7 +122,7 @@ class TextBotMessage:
     CONFIRM_RESAVE_NEW_WEIGHT = "Сегодня был добавлен вес {} кг. Заменить?"
     SAVE_OLD_WEIGHT = "Оставили вес равный {} кг"
     SELECT_PERIOD_STATISTICS = "Выбери за какой период, в днях, ты хочешь получить статистику?"
-    STATISTICS_NOT_FOUND = "К сожалению мы не смогли найти для вас статистику"
+    STATISTICS_NOT_FOUND = "К сожалению, мы не смогли найти для вас статистику"
     STATISTICS_MSG = '\n'.join(['1) Дата',
                                 '2) Вес',
                                 '3) Потреблено(кКал)',
