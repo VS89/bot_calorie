@@ -27,7 +27,7 @@ class BalanceCalorie:
 class FileName:
 
     def __init__(self, user_id: int):
-        self._file_path = '../.files'
+        self._file_path = './.files'
         self._current_date_for_file_name = CurrentDate.get_now().strftime('%d%m%Y%H%M%S')
         self._user_id = user_id
 
