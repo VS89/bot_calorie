@@ -27,3 +27,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 line-length = 51
+
+[tool.ruff.lint]
+ignore = ['F401']
