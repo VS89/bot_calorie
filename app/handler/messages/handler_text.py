@@ -1,12 +1,10 @@
 import logging
 
-from app.constants import TextBotMessage, LimitValues, PrefixCallbackData
+from app.constants import TextBotMessage, LimitValues
 from app.db.messages_db import MessagesDB
 from app.db.statistics_db import StatisticsDB
 from app.db.users_db import UsersDB
 from app.external_api.telegram_api import TelegramApi
-from app.handler.commands.command_activity_coef import HandlerCommandActivityCoef
-from app.keyboards import InlineKeyboardsModel, InlineKeyboardButtonModel
 from app.models.handlers_model import HandlersModel
 from app.models.telegram.tg_request_models import SendMessageModel, EditMessageModel
 from app.schemas.postgresql_schemas import MessagesSchemas, UsersSchemas, StatisticsSchemas
@@ -201,7 +199,7 @@ class HandlerText:
                     user_id=user.user_id)
                 logging.info(f"Для пользователя {user.user_id=}, {count_uniq_weight=}")
                 if count_uniq_weight > 1:
-                    logging.info(f"у юзера больше одного уникального веса")
+                    logging.info("у юзера больше одного уникального веса")
                     resp_last_row_statistics = await self._statistics_db.get_last_row_by_user_id(user_id=user.user_id)
                     resp_confirm_edit_weight_msg = await self._client.send_message(data=MessageBuilder(
                         user_id=user.user_id,

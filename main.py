@@ -56,16 +56,17 @@ async def webhook(req: Request):
     try:
         response_model = TelegramResponse(**data)
         if response_model.callback_query:
+            # todo проверить этот кусок перед мержем в мастер
             match response_model.callback_query.data.split('_'):
-                case PrefixCallbackData.ACTIVITY_COEF, *v:
+                case PrefixCallbackData.ACTIVITY_COEF, *_:
                     await handlers.handler_activity_coef.handler_callback_data(
                         callback_query=response_model.callback_query
                     )
-                case PrefixCallbackData.WEIGHT, *v:
+                case PrefixCallbackData.WEIGHT, *_:
                     await handlers.handler_edit_weight.handler_callback_data_edit_weight(
                         callback_query=response_model.callback_query
                     )
-                case PrefixCallbackData.STATISTICS, *v:
+                case PrefixCallbackData.STATISTICS, *_:
                     await handlers.handler_statistics.handler_callback_data(
                         callback_query=response_model.callback_query
                     )

@@ -1,12 +1,3 @@
-from typing import Any
-
-from app.keyboards import (
-    InlineKeyboardsModel,
-    InlineKeyboardButtonModel,
-)
-from app.models.telegram.tg_request_models import (
-    SendMessageModel,
-)
 
 
 class FormatFile:
@@ -168,5 +159,3 @@ class TextBotMessage:
     CAPTION_CHART_STATISTIC_WEIGHT = (
         "Твоя динамика веса за {} дней"
     )
-
-    aseom = "asdlqwhjkelqwhejlhq qwlejhqljwheqljweh qjlwhelqjwheljqhwlejhq lwjeh qjlwheljq wheljqhwejlhqwljeh qlwjhelqj wheljqh"

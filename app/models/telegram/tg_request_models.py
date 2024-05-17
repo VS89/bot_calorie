@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pydantic import BaseModel, Field, json, ConfigDict
+from pydantic import BaseModel, Field
 
 
 class AllowedUpdate(Enum):
