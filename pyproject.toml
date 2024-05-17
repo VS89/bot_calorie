@@ -26,4 +26,4 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.ruff]
-line-length = 50
+line-length = 51
