@@ -1,12 +1,10 @@
-import logging
+from app.utils.configuration_logger import logger
 
-from app.constants import TextBotMessage, LimitValues, PrefixCallbackData
+from app.constants import TextBotMessage, LimitValues
 from app.db.messages_db import MessagesDB
 from app.db.statistics_db import StatisticsDB
 from app.db.users_db import UsersDB
 from app.external_api.telegram_api import TelegramApi
-from app.handler.commands.command_activity_coef import HandlerCommandActivityCoef
-from app.keyboards import InlineKeyboardsModel, InlineKeyboardButtonModel
 from app.models.handlers_model import HandlersModel
 from app.models.telegram.tg_request_models import SendMessageModel, EditMessageModel
 from app.schemas.postgresql_schemas import MessagesSchemas, UsersSchemas, StatisticsSchemas
@@ -32,7 +30,7 @@ class HandlerText:
         """
         if value_kg:
             await self._messages_db.delete_all_message_user(user_id=self._chat_id)
-            logging.info(f'Для пользователя {self._chat_id} получили значение {value_kg=}')
+            logger.info(f'Для пользователя {self._chat_id} получили значение {value_kg=}')
             await self._users_db.update_data(data=UsersSchemas(user_id=self._chat_id,
                                                                weight=value_kg))
             await self._handlers.handler_activity_coef.send_activity_coef_message(chat_id=self._chat_id,
@@ -49,7 +47,7 @@ class HandlerText:
 
         if text.isnumeric() and (1 <= (value := int(text)) <= 5):
             await self._messages_db.delete_all_message_user(user_id=user.user_id)
-            logging.info(f"Валидное значение коэффициента {value=}")
+            logger.info(f"Валидное значение коэффициента {value=}")
             if user.activity_coef is None:
                 balance_calorie = BalanceCalorie(weight=user.weight,
                                                  activity_coef=value).get_balance_calorie_count
@@ -81,7 +79,7 @@ class HandlerText:
 
     async def _confirm_change_activity_coef(self, user: UsersSchemas, text: str, last_message: MessagesSchemas):
         if TextBotMessage.YES.lower() == text.lower():
-            logging.info("Ты написал Да, после того как получил окно про подтверждение")
+            logger.info("Ты написал Да, после того как получил окно про подтверждение")
             activity_coef = ParseText(last_message.text).parse_digit()
             balance_calorie = BalanceCalorie(weight=user.weight,
                                              activity_coef=activity_coef).get_balance_calorie_count
@@ -97,7 +95,7 @@ class HandlerText:
             await self._messages_db.delete_all_message_user(user_id=user.user_id)
 
         elif TextBotMessage.NO.lower() == text.lower():
-            logging.info("Ты написал Нет, после того как получил окно про подтверждение")
+            logger.info("Ты написал Нет, после того как получил окно про подтверждение")
             await self._client.send_message(data=SendMessageModel(
                 chat_id=user.user_id,
                 text=TextBotMessage.FAILED_CONFIRM_CHANGE_ACTIVITY_COEF_MSG
@@ -105,7 +103,7 @@ class HandlerText:
             await self._messages_db.delete_all_message_user(user_id=user.user_id)
 
         else:
-            logging.info(f"Ты написал {text}, после того как получил окно про подтверждение")
+            logger.info(f"Ты написал {text}, после того как получил окно про подтверждение")
             resp_repeat_msg = await self._client.send_message(data=MessageBuilder(
                 user_id=self._chat_id, callback_data=last_message.activity_coef,
                 text=TextBotMessage.CONFIRM_CHANGE_ACTIVITY_COEF_MSG.format(last_message.activity_coef)
@@ -134,7 +132,7 @@ class HandlerText:
             balance_calorie=user.balance_calorie
         ))
         kcal_sum = await self._statistics_db.get_sum_kcal_for_current_date(user_id=user.user_id)
-        logging.info(f"Для пользователя {user.user_id} текущий баланс ккал == {kcal_sum}")
+        logger.info(f"Для пользователя {user.user_id} текущий баланс ккал == {kcal_sum}")
         kcal_balance = user.balance_calorie - kcal_sum - LimitValues.CALORIE_DEFICIT
         send_msg_model = MessageBuilder(user_id=user.user_id).calorie_balance_message(kcal_balance)
         await self._client.send_message(data=send_msg_model)
@@ -153,7 +151,7 @@ class HandlerText:
         user = await self._users_db.get_user_by_user_id(user_id=self._chat_id)
         last_message = await self._messages_db.get_last_message_by_user_id(user_id=self._chat_id)
         if last_message is not None:
-            logging.info(f'Последнее сообщение в чате пользователя {self._chat_id} было "{last_message.text}" '
+            logger.info(f'Последнее сообщение в чате пользователя {self._chat_id} было "{last_message.text}" '
                          f'с message_id == {last_message.message_id}')
             match last_message.text:
 
@@ -179,7 +177,7 @@ class HandlerText:
                     return
 
                 case _:
-                    logging.error(f'Из таблицы сообщений получили текст: "{last_message.text}", '
+                    logger.error(f'Из таблицы сообщений получили текст: "{last_message.text}", '
                                   f'НО никак не обработали его')
 
             if last_message.update_weight:
@@ -192,16 +190,16 @@ class HandlerText:
 
         if user is not None:
             if value_kc := parse_text.parse_kcal():
-                logging.info(f"Распарсили кол-во ккал == {value_kc}")
+                logger.info(f"Распарсили кол-во ккал == {value_kc}")
                 await self._added_kc(value_kc=value_kc, user=user)
                 return
             if value_weight := parse_text.parse_weight():
-                logging.info(f"Распарсили кол-во kg == {value_weight}")
+                logger.info(f"Распарсили кол-во kg == {value_weight}")
                 count_uniq_weight = await self._statistics_db.get_count_uniq_weight_by_user_id_today(
                     user_id=user.user_id)
-                logging.info(f"Для пользователя {user.user_id=}, {count_uniq_weight=}")
+                logger.info(f"Для пользователя {user.user_id=}, {count_uniq_weight=}")
                 if count_uniq_weight > 1:
-                    logging.info(f"у юзера больше одного уникального веса")
+                    logger.info("у юзера больше одного уникального веса")
                     resp_last_row_statistics = await self._statistics_db.get_last_row_by_user_id(user_id=user.user_id)
                     resp_confirm_edit_weight_msg = await self._client.send_message(data=MessageBuilder(
                         user_id=user.user_id,

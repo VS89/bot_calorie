@@ -1,4 +1,4 @@
-import logging
+from app.utils.configuration_logger import logger
 
 from app.constants import TextBotMessage
 from app.db.messages_db import MessagesDB
@@ -40,7 +40,7 @@ class HandlerCommandActivityCoef:
             callback_query_id=callback_query.callback_query_id
         ))
         callback_data = callback_query.data.split('_')[-1]
-        logging.info(f'Обработка callback_data == {callback_data}')
+        logger.info(f'Обработка callback_data == {callback_data}')
         user = await self._users_db.get_user_by_user_id(user_id=callback_query.from_user.user_id)
         if callback_data.isnumeric():
             balance_calorie = BalanceCalorie(weight=user.weight,
