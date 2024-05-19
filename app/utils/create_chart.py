@@ -1,4 +1,4 @@
-import logging
+from app.utils.configuration_logger import logger
 import os
 import time
 
@@ -29,5 +29,5 @@ def create_chart_png(daily_statistics: list[DailyStatisticsModel], user_id: int)
         if os.stat(file_name):
             return file_name
         time.sleep(1)
-    logging.error(f"В течение 15 секунд не дождались создание файла с графиком динамики веса "
-                  f"для пользователя: {user_id}")
+    logger.error(f"В течение 15 секунд не дождались создание файла с графиком динамики веса "
+                 f"для пользователя: {user_id}")

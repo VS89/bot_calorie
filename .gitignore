@@ -163,3 +163,4 @@ cython_debug/
 .DS_Store
 app/.DS_Store
 .files/
+.log_files/

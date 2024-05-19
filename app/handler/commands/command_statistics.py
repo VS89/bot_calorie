@@ -1,4 +1,4 @@
-import logging
+from app.utils.configuration_logger import logger
 
 from app.constants import TextBotMessage, LimitValues
 from app.db.messages_db import MessagesDB
@@ -113,12 +113,12 @@ class HandlerStatistics:
             callback_query_id=callback_query.callback_query_id
         ))
         callback_data = callback_query.data.split('_')[-1]
-        logging.info(f'Обработка callback_data == {callback_data} для статистики')
+        logger.info(f'Обработка callback_data == {callback_data} для статистики')
         user = await self._users_db.get_user_by_user_id(user_id=callback_query.from_user.user_id)
         statistics = await self._statistics_db.get_statistics_by_days(count_days=int(callback_data) - 1,
                                                                       user_id=callback_query.from_user.user_id)
         if statistics:
-            logging.info(f"Для пользователя {user.user_id}. Статистика == {statistics}")
+            logger.info(f"Для пользователя {user.user_id}. Статистика == {statistics}")
             daily_statistics = self.get_daily_statistics(statistics=statistics)
             chart_path = create_chart_png(daily_statistics=daily_statistics, user_id=user.user_id)
             await self._tg_api_client.send_message(data=MessageBuilder(
@@ -135,6 +135,6 @@ class HandlerStatistics:
             ))
             await self._messages_db.delete_all_message_user(user_id=callback_query.from_user.user_id)
             return
-        logging.info(f"Не смогли найти статистику для пользователя {user.user_id}")
+        logger.info(f"Не смогли найти статистику для пользователя {user.user_id}")
         await self._tg_api_client.send_message(data=SendMessageModel(chat_id=user.user_id,
                                                                      text=TextBotMessage.STATISTICS_NOT_FOUND))

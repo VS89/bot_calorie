@@ -1,4 +1,3 @@
-import logging
 from contextlib import asynccontextmanager
 
 import httpx
@@ -19,9 +18,10 @@ from app.handler.handler_edit_weight import HandlerEditWeight
 from app.handler.messages.handler_text import HandlerText
 from app.models.handlers_model import HandlersModel
 from app.models.telegram.tg_response_models import TelegramResponse, EntitiesType
+from app.utils.configuration_logger import logger
 from app.utils.settings import SettingsModel
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
 settings = SettingsModel()
 handlers = HandlersModel()
 client = httpx.AsyncClient()
@@ -30,7 +30,7 @@ tg_api_client = TelegramApi(telegram_api_token=settings.tg_api_token)
 
 @asynccontextmanager
 async def lifespan(app_: FastAPI):
-    logging.info("Открываю подключение к бд")
+    logger.info("Открываю подключение к бд")
     pg = PGConnectionManager(settings=settings)
     await pg.get_cursor()
     app_.pg = pg
@@ -42,7 +42,7 @@ async def lifespan(app_: FastAPI):
                                                     statistics_db=pg.statistics_db, users_db=pg.users_db)
     handlers.handler_export = HandlerExport(tg_api_client=tg_api_client, statistics_db=pg.statistics_db)
     yield
-    logging.info("Закрываю подключение к бд")
+    logger.info("Закрываю подключение к бд")
     await pg.close()
 
 
@@ -52,7 +52,7 @@ app = FastAPI(lifespan=lifespan)
 @app.post(f"/webhook{settings.tg_api_token}")
 async def webhook(req: Request):
     data = await req.json()
-    logging.info(f"{data=}")
+    logger.info(f"{data=}")
     try:
         response_model = TelegramResponse(**data)
         if response_model.callback_query:
@@ -71,7 +71,7 @@ async def webhook(req: Request):
                         callback_query=response_model.callback_query
                     )
                 case _:
-                    logging.error(f'Получили неизвестный и необработанный callback: {response_model.callback_query}')
+                    logger.error(f'Получили неизвестный и необработанный callback: {response_model.callback_query}')
             return
         if response_model.message.entities:
             if response_model.message.entities[0].type == EntitiesType.BOT_COMMAND.value:
@@ -90,10 +90,10 @@ async def webhook(req: Request):
                     case CommandName.EXPORT:
                         await handlers.handler_export.handler_export_command(user_id=chat_id)
                     case _:
-                        logging.info(f'Пользователь: {response_model.message.chat.user_id} '
-                                     f'пытался использовать команду: {response_model.message.text}')
+                        logger.info(f'Пользователь: {response_model.message.chat.user_id} '
+                                    f'пытался использовать команду: {response_model.message.text}')
             return
-        logging.info(f"В обработчик текста передаем текст == {response_model.message.text}")
+        logger.info(f"В обработчик текста передаем текст == {response_model.message.text}")
         await HandlerText(
             tg_api_client=tg_api_client,
             chat_id=response_model.message.chat.user_id,
@@ -103,7 +103,7 @@ async def webhook(req: Request):
             handlers=handlers
         ).handler_text(text=response_model.message.text)
     except Exception as e:
-        logging.error(e)
+        logger.error(e)
 
     return data
 

@@ -1,5 +1,5 @@
 import csv
-import logging
+from app.utils.configuration_logger import logger
 import os
 import time
 
@@ -26,7 +26,7 @@ class HandlerExport:
         """
         all_user_statistics = await self._statistics_db.get_all_statistics_by_user_id(user_id=user_id)
         if all_user_statistics:
-            logging.info(f'Отправляем файл со статистикой для пользователя: {user_id}')
+            logger.info(f'Отправляем файл со статистикой для пользователя: {user_id}')
             user_daily_statistics = HandlerStatistics.get_daily_statistics(all_user_statistics)
             file_name = FileName(user_id=user_id).get_name_for_export_statistics()
             with open(file_name, 'w', newline='', encoding='utf-8') as f:
@@ -46,8 +46,8 @@ class HandlerExport:
                     ))
                     return
                 time.sleep(1)
-            logging.error(f"В течение 15 секунд не дождались создание файла с полной статистикой "
-                          f"для пользователя: {user_id}")
+            logger.error(f"В течение 15 секунд не дождались создание файла с полной статистикой "
+                         f"для пользователя: {user_id}")
         await self._tg_api_client.send_message(data=SendMessageModel(
             chat_id=user_id,
             text=TextBotMessage.STATISTICS_NOT_FOUND

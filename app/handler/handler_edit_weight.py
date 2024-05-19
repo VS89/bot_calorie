@@ -1,4 +1,4 @@
-import logging
+from app.utils.configuration_logger import logger
 
 from app.constants import TextBotMessage
 from app.db.messages_db import MessagesDB
@@ -60,19 +60,19 @@ class HandlerEditWeight:
         Обработка обновления веса через текстовые ответы
         """
         user_old_weight = user.weight
-        logging.info("Зашли в функцию обновления значения кг пользователя")
+        logger.info("Зашли в функцию обновления значения кг пользователя")
         if text_answer.lower() == TextBotMessage.YES.lower():
-            logging.info(f"Подтвердили что пользователь ввел 'ДА', на самом деле пользователь ввел - {text_answer}")
+            logger.info(f"Подтвердили что пользователь ввел 'ДА', на самом деле пользователь ввел - {text_answer}")
             await self._save_weight(user=user, new_value_weight=value_weight)
 
         elif text_answer.lower() == TextBotMessage.NO.lower():
-            logging.info(f"Подтвердили что пользователь ввел 'НЕТ', на самом деле пользователь ввел - {text_answer}")
+            logger.info(f"Подтвердили что пользователь ввел 'НЕТ', на самом деле пользователь ввел - {text_answer}")
             await self._dont_save_weight(user=user)
         else:
             resp_confirm_edit_weight_msg = await self._tg_api_client.send_message(data=MessageBuilder(
                 user_id=user.user_id,
                 callback_data=value_weight,
-                text=TextBotMessage.CONFIRM_RESAVE_NEW_WEIGHT.format(value_weight)).confirm_resave_new_weight)
+                text=TextBotMessage.CONFIRM_RESAVE_NEW_WEIGHT.format(user_old_weight)).confirm_resave_new_weight)
 
             await self._messages_db.insert_message(data=MessagesSchemas(
                 user_id=user.user_id,

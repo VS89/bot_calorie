@@ -1,10 +1,9 @@
-import logging
-
 import httpx
 
 from app.models.telegram.tg_request_models import SendMessageModel, EditMessageModel, AnswerCallbackQueryModel, \
     SendPhotoModel, SendDocumentModel
 from app.models.telegram.tg_response_models import MessageModel
+from app.utils.configuration_logger import logger
 
 
 class TelegramApi:
@@ -21,7 +20,7 @@ class TelegramApi:
         resp_json = resp.json()
         if resp_json.get('ok'):
             return MessageModel(**resp_json['result'])
-        logging.error(f"Не смогли отправить сообщение в чат: {data.chat_id}")
+        logger.error(f"Не смогли отправить сообщение в чат: {data.chat_id}")
 
     async def edit_message(self, data: EditMessageModel) -> MessageModel:
         """
@@ -31,7 +30,7 @@ class TelegramApi:
         resp_json = resp.json()
         if resp_json.get('ok'):
             return MessageModel(**resp_json['result'])
-        logging.error(f"Не смогли отредактировать сообщение {data.message_id} в чате: {data.chat_id}")
+        logger.error(f"Не смогли отредактировать сообщение {data.message_id} в чате: {data.chat_id}")
 
     async def answer_callback_query(self, data: AnswerCallbackQueryModel):
         """
@@ -41,7 +40,7 @@ class TelegramApi:
         resp_json = resp.json()
         if resp_json.get('ok'):
             return
-        logging.error(f"Не смогли ответить на нажатие кнопки, answer callback query: {resp_json}")
+        logger.error(f"Не смогли ответить на нажатие кнопки, answer callback query: {resp_json}")
         
     async def send_photo(self, data: SendPhotoModel):
         """
@@ -51,7 +50,7 @@ class TelegramApi:
         resp_json = resp.json()
         if resp_json.get('ok'):
             return
-        logging.error(f'Не смогли отправить фото со статистикой в чат: {data.chat_id}.\n{resp_json}')
+        logger.error(f'Не смогли отправить фото со статистикой в чат: {data.chat_id}.\n{resp_json}')
 
     async def send_document(self, data: SendDocumentModel):
         """
@@ -61,4 +60,4 @@ class TelegramApi:
         resp_json = resp.json()
         if resp_json.get('ok'):
             return
-        logging.error(f'Не смогли отправить документ с телом: {data.files_dict} в чат: {data.chat_id}.\n{resp_json}')
+        logger.error(f'Не смогли отправить документ с телом: {data.files_dict} в чат: {data.chat_id}.\n{resp_json}')
