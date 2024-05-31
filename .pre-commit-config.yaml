@@ -1,10 +1,33 @@
 repos:
+#  ruff linter https://docs.astral.sh/ruff/tutorial/
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  # Ruff version.
-  rev: v0.4.4
+  rev: v0.4.6
   hooks:
-    # Run the linter.
     - id: ruff
-#      args: [ --fix ]
-    # Run the formatter.
-#    - id: ruff-format
+
+# pre-commit hooks https://github.com/pre-commit/pre-commit-hooks
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.6.0
+  hooks:
+    - id: end-of-file-fixer # чтобы в конце файла всегда была пустая строка
+    - id: trailing-whitespace # удаляет лишние пробелы в конце строки
+    - id: name-tests-test # проверяет, что имена тестовых файлов начинаются с "test_"
+      args: [--pytest-test-first]
+    - id: no-commit-to-branch # запрещает коммит в master и main
+      args: [--branch, master]
+
+# реимпорт, будет все в одной стилистики
+# https://github.com/asottile/reorder-python-imports#replacing-imports
+- repo: https://github.com/asottile/reorder-python-imports
+  rev: v3.12.0
+  hooks:
+    - id: reorder-python-imports
+      args: [--py39-plus]
+
+# Проверяет, что наша ветка не отстала от мастера
+- repo: local
+  hooks:
+    - id: master-check
+      name: check master in branch
+      language: system
+      entry: bash -c 'if [ $(git log HEAD..origin/master --pretty=oneline | wc -l) -gt 0 ]; then echo "Ветка отстала от ветки Master!"; exit 1; fi'
